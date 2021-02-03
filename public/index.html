@@ -17,14 +17,21 @@
         <div class="form-group">
             <label for="status">status:</label>
             <input class="form-control" name="status" />
-        </div>
+        </div>  
+        <div class="form-group">
+            <label for="datetime-start">start date:</label>
+            <input id="datetime-start" name="datetime-start" class="form-control" type="datetime-local" />
+        </div>
+        <div class="form-group">
+            <label for="datetime-stop">stop date:</label>
+            <input id="datetime-stop" name="datetime-stop" class="form-control" type="datetime-local" />
+        </div>
         <div class="panel-body">
             <button type="submit" class="btn btn-sm btn-primary">save</button>
-            <a id="reset" class="btn btn-sm btn-primary">reset</a>
         </div>
     </form>
     <table class="table table-condensed table-striped table-bordered">
-        <thead><tr><th>Id</th><th>name</th><th>status</th><th></th></tr></thead>
+        <thead><tr><th>name</th><th>status</th><th>start date</th><th>stop date</th></tr></thead>
         <tbody>
         </tbody>
     </table>
@@ -45,20 +52,19 @@
             }
         }
 
-        async function CreateTask(taskName, taskStatus) {
+        async function CreateTask(taskName, taskStatus, startDate, stopDate) {
             const response = await fetch("/api/add", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: taskName,
                     status: parseInt(taskStatus, 10),
-                    start: new Date(Date.now()),
-                    stop: new Date('December 17, 2025 03:24:00')
+                    start: startDate,
+                    stop: stopDate
                 })
             });
             if (response.ok === true) {
                 const task = await response.json();
-                console.log(response.body);
                 reset();
                 document.querySelector("tbody").append(row(task));
             }
@@ -75,10 +81,6 @@
             const tr = document.createElement("tr");
             tr.setAttribute("data-rowid", task._id);
   
-            const idTd = document.createElement("td");
-            idTd.append(task._id);
-            tr.append(idTd);
-  
             const nameTd = document.createElement("td");
             nameTd.append(task.name);
             tr.append(nameTd);
@@ -86,14 +88,18 @@
             const statusTd = document.createElement("td");
             statusTd.append(task.status);
             tr.append(statusTd);
+
+            var datetimeOptions = { year: 'numeric', month: 'long', day: 'numeric',  hour: 'numeric', minute: 'numeric', second: 'numeric' };
+            const startTd = document.createElement("td");
+            startTd.append(new Date(task.start).toLocaleDateString("en-US", datetimeOptions));
+            tr.append(startTd);
+  
+            const stopTd = document.createElement("td");
+            stopTd.append(new Date(task.stop).toLocaleDateString("en-US", datetimeOptions));
+            tr.append(stopTd);
   
             return tr;
         }
-
-        document.getElementById("reset").click(function (e) {  
-            e.preventDefault();
-            reset();
-        })
   
         document.forms["taskForm"].addEventListener("submit", e => {
             e.preventDefault();
@@ -101,8 +107,10 @@
             const id = form.elements["id"].value;
             const name = form.elements["name"].value;
             const status = form.elements["status"].value;
+            const start = form.elements["datetime-start"].value;
+            const stop = form.elements["datetime-stop"].value;
             if (id == 0)
-                CreateTask(name, status);
+                CreateTask(name, status, start, stop);
         });
   
         GetTasks();
