@@ -5,19 +5,40 @@
     <meta name="viewport" content="width=device-width" />
     <title>tasks</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        #taskForm {
+            width: 500px;
+            margin: 30px auto 30px 100px;
+        }
+        #taskTable {
+            width: 90%;
+            margin: 0px auto 0px auto;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Task list</h2>
-    <form name="taskForm">
-        <input type="hidden" name="id" value="0" />
-        <div class="form-group">
-            <label for="name">name:</label>
-            <input class="form-control" name="name" />
-        </div>
-        <div class="form-group">
-            <label for="status">status:</label>
-            <input class="form-control" name="status" />
-        </div>  
+    <form id="taskForm" name="taskForm" autocomplete="off">
+        <h2>New task</h2>
+        <input type="hidden" name="id" value="0" />
+        <div class="form-group">
+            <label for="name">name:</label>
+            <input class="form-control" name="name" />
+        </div>
+        <div class="form-group">
+        <label for="status">status:</label>
+            <select class="form-control" name="status">
+                <option selected value="not started">not started</option>
+                <option value="in progress">in progress</option>
+                <option value="completed">completed</option>
+            </select>
+        </div>  
         <div class="form-group">
             <label for="datetime-start">start date:</label>
             <input id="datetime-start" name="datetime-start" class="form-control" type="datetime-local" />
@@ -26,94 +47,20 @@
             <label for="datetime-stop">stop date:</label>
             <input id="datetime-stop" name="datetime-stop" class="form-control" type="datetime-local" />
         </div>
-        <div class="panel-body">
-            <button type="submit" class="btn btn-sm btn-primary">save</button>
-        </div>
-    </form>
-    <table class="table table-condensed table-striped table-bordered">
-        <thead><tr><th>name</th><th>status</th><th>start date</th><th>stop date</th></tr></thead>
-        <tbody>
-        </tbody>
-    </table>
-   
-    <script>
+        <div class="form-group">
+            <label for="filedata">upload file:</label>
+            <input name="filedata" type="file" multiple />
+        </div>
+        <div class="panel-body">
+            <button type="submit" class="btn btn-sm btn-primary">save</button>
+        </div>    
+    </form>
+    <table id="taskTable" class="table table-condensed table-striped table-bordered">
+        <thead><tr><th>name</th><th>status</th><th>start date</th><th>stop date</th></tr></thead>
+        <tbody>
+        </tbody>    
+    </table>
 
-        async function GetTasks() {
-            const response = await fetch("/api/all", {
-                method: "GET",
-                headers: { "Accept": "application/json" }
-            });
-            if (response.ok === true) {
-                const tasks = await response.json();
-                let rows = document.querySelector("tbody"); 
-                tasks.forEach(task => {
-                    rows.append(row(task));
-                });
-            }
-        }
-
-        async function CreateTask(taskName, taskStatus, startDate, stopDate) {
-            const response = await fetch("/api/add", {
-                method: "POST",
-                headers: { "Accept": "application/json", "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: taskName,
-                    status: parseInt(taskStatus, 10),
-                    start: startDate,
-                    stop: stopDate
-                })
-            });
-            if (response.ok === true) {
-                const task = await response.json();
-                reset();
-                document.querySelector("tbody").append(row(task));
-            }
-        }
-
-        function reset() {
-            const form = document.forms["taskForm"];
-            form.reset();
-            form.elements["id"].value = 0;
-        }
-        
-        function row(task) {
-  
-            const tr = document.createElement("tr");
-            tr.setAttribute("data-rowid", task._id);
-  
-            const nameTd = document.createElement("td");
-            nameTd.append(task.name);
-            tr.append(nameTd);
-  
-            const statusTd = document.createElement("td");
-            statusTd.append(task.status);
-            tr.append(statusTd);
-
-            var datetimeOptions = { year: 'numeric', month: 'long', day: 'numeric',  hour: 'numeric', minute: 'numeric', second: 'numeric' };
-            const startTd = document.createElement("td");
-            startTd.append(new Date(task.start).toLocaleDateString("en-US", datetimeOptions));
-            tr.append(startTd);
-  
-            const stopTd = document.createElement("td");
-            stopTd.append(new Date(task.stop).toLocaleDateString("en-US", datetimeOptions));
-            tr.append(stopTd);
-  
-            return tr;
-        }
-  
-        document.forms["taskForm"].addEventListener("submit", e => {
-            e.preventDefault();
-            const form = document.forms["taskForm"];
-            const id = form.elements["id"].value;
-            const name = form.elements["name"].value;
-            const status = form.elements["status"].value;
-            const start = form.elements["datetime-start"].value;
-            const stop = form.elements["datetime-stop"].value;
-            if (id == 0)
-                CreateTask(name, status, start, stop);
-        });
-  
-        GetTasks();
-    </script>
+    <script type="text/javascript" src="/static/taskOperate.js"></script>
 </body>
 </html>

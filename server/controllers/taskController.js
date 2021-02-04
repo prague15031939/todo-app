@@ -13,3 +13,11 @@ exports.add = async function(taskData) {
 exports.getAll = async function() {
     return await Task.find({});
 }
+
+exports.deleteById = async function(id) {
+    return await Task.findByIdAndRemove({_id: id});
+}
+
+exports.addFiles = async function(taskId, uploadedFiles) {
+    return await Task.findOneAndUpdate({_id: taskId}, {files: Array.from(uploadedFiles, item => item.path)}, {new: true});
+}

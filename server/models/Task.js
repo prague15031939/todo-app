@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+mongoose.set('useFindAndModify', false);
+
 const taskScheme = new mongoose.Schema({
     name: {
         type: String, 
@@ -7,10 +9,9 @@ const taskScheme = new mongoose.Schema({
         maxlength: 4096
     },
     status: {
-        type: Number,
-        min: 0,
-        max: 5,
-        default: 0,
+        type: String,
+        enum: ["not started", "in progress", "completed"],
+        default: "not started",
         required: true
     },
     start: {
