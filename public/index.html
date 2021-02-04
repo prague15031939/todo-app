@@ -51,12 +51,14 @@
             <label for="filedata">upload file:</label>
             <input name="filedata" type="file" multiple />
         </div>
-        <div class="panel-body">
+        <div style="margin-top: 40px">
             <button type="submit" class="btn btn-sm btn-primary">save</button>
+            <a id="filter" class="btn btn-sm btn-primary">filter by status</a>
+            <a id="getall" class="btn btn-sm btn-primary">get all</a>
         </div>    
     </form>
     <table id="taskTable" class="table table-condensed table-striped table-bordered">
-        <thead><tr><th>name</th><th>status</th><th>start date</th><th>stop date</th></tr></thead>
+        <thead><tr><th>name</th><th>status</th><th>start date</th><th>stop date</th><th>files</th></tr></thead>
         <tbody>
         </tbody>    
     </table>

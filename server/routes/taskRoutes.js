@@ -16,11 +16,20 @@ router.post("/api/add", async (req, res) => {
 });
 
 router.get("/api/all", async (req, res) => {
-    const saved = await taskController.getAll();
-    if (saved)
-        res.status(200).send(saved);
-    else
-        res.status(400).send("an error occured");
+    if (req.query.status) {
+        const saved = await taskController.getByStatus(req.query.status);
+        if (saved)
+            res.status(200).send(saved);
+        else
+            res.status(400).send("an error occured");
+    }
+    else {
+        const saved = await taskController.getAll();
+        if (saved)
+            res.status(200).send(saved);
+        else
+            res.status(400).send("an error occured");
+    }
 });
 
 router.delete("/api/delete/:id", async (req, res) => {
@@ -45,7 +54,6 @@ const storageConfig = multer.diskStorage({
 var upload = multer({storage: storageConfig});
 router.post('/api/upload', upload.array('filedata', 5), async (req, res) => {
     const saved = await taskController.addFiles(req.body.taskId, req.files);
-    console.log(saved);
     if (saved)
         res.status(200).send(saved);
     else

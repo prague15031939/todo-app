@@ -7,6 +7,23 @@ async function GetTasks() {
     });
     if (response.ok === true) {
         const tasks = await response.json();
+        resetTaskTable();
+        let rows = document.querySelector("tbody");
+        tasks.forEach(task => {
+            rows.append(row(task));
+        });
+    }
+}
+
+async function GetTasksByFilter(statusFilter) {
+    const response = await fetch("/api/all?status=" + statusFilter, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    });
+    if (response.ok === true) {
+        const tasks = await response.json();
         let rows = document.querySelector("tbody");
         tasks.forEach(task => {
             rows.append(row(task));
@@ -67,6 +84,12 @@ function reset() {
     form.elements["id"].value = 0;
 }
 
+function resetTaskTable() {
+    var oldTbody = document.querySelector("tbody");
+    var newTbody = document.createElement('tbody');
+    oldTbody.parentNode.replaceChild(newTbody, oldTbody);
+}
+
 function row(task) {
 
     const tr = document.createElement("tr");
@@ -96,6 +119,15 @@ function row(task) {
     stopTd.append(new Date(task.stop).toLocaleDateString("en-US", datetimeOptions));
     tr.append(stopTd);
 
+    const filesTd = document.createElement("td");
+    if (task.files.length)
+        task.files.forEach(file => {
+            let div = document.createElement("div");
+            div.append(document.createTextNode(file));
+            filesTd.appendChild(div);
+        });
+    tr.append(filesTd);
+
     const linksTd = document.createElement("td");
     const removeLink = document.createElement("a");
     removeLink.setAttribute("data-id", task._id);
@@ -120,8 +152,23 @@ document.forms["taskForm"].addEventListener("submit", e => {
     const start = form.elements["datetime-start"].value;
     const stop = form.elements["datetime-stop"].value;
     const selectedFiles = [...form.elements["filedata"].files];
-    if (id == 0)
+    if (id == 0 && name && stop)
         CreateTask(name, status, start, stop, selectedFiles);
+});
+
+document.getElementById("filter").addEventListener("click", e => {
+    e.preventDefault();
+    const form = document.forms["taskForm"];
+    const status = form.elements["status"].value;
+    if (status) {
+        resetTaskTable();
+        GetTasksByFilter(status);
+    }
+});
+
+document.getElementById("getall").addEventListener("click", e => {
+    e.preventDefault();
+    GetTasks();
 });
 
 GetTasks();

@@ -1,4 +1,5 @@
 const Task = require("../models/Task");
+const fs = require("fs");
 
 exports.add = async function(taskData) {
     const taskItem = new Task({
@@ -10,14 +11,21 @@ exports.add = async function(taskData) {
     return await taskItem.save();
 }
 
+exports.addFiles = async function(taskId, uploadedFiles) {
+    return await Task.findOneAndUpdate({_id: taskId}, {files: Array.from(uploadedFiles, item => item.path)}, {new: true});
+}
+
 exports.getAll = async function() {
     return await Task.find({});
 }
 
-exports.deleteById = async function(id) {
-    return await Task.findByIdAndRemove({_id: id});
+exports.getByStatus = async function(taskStatus) {
+    return await Task.find({status: taskStatus});
 }
 
-exports.addFiles = async function(taskId, uploadedFiles) {
-    return await Task.findOneAndUpdate({_id: taskId}, {files: Array.from(uploadedFiles, item => item.path)}, {new: true});
+exports.deleteById = async function(id) {
+    const task = await Task.findOne({_id: id});
+    for (const fileName of task.files)
+        fs.unlinkSync(fileName);
+    return await Task.findByIdAndRemove({_id: id});
 }
