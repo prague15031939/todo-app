@@ -1,5 +1,20 @@
 const Task = require("../models/Task");
 const fs = require("fs");
+const path = require("path");
+
+exports.extractFilenames = function(tasks) {
+    if (tasks.length) {
+        for (let i = 0; i < tasks.length; i++)
+            if (tasks[i].files)
+                for (let j = 0; j < tasks[i].files.length; j++)
+                    tasks[i].files[j] = path.basename(tasks[i].files[j]);
+    } 
+    else {
+        for (let i = 0; i < tasks.files.length; i++)
+            tasks.files[i] = path.basename(tasks.files[i]);
+    }
+    return tasks;
+}
 
 exports.add = async function(taskData) {
     const taskItem = new Task({
@@ -21,6 +36,10 @@ exports.getAll = async function() {
 
 exports.getByStatus = async function(taskStatus) {
     return await Task.find({status: taskStatus});
+}
+
+exports.getById = async function(id) {
+    return await Task.findOne({_id: id});
 }
 
 exports.deleteById = async function(id) {

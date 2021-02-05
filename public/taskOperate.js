@@ -49,16 +49,23 @@ async function CreateTask(taskName, taskStatus, startDate, stopDate, selectedFil
     if (response.ok === true) {
         const task = await response.json();
 
-        const formData = new FormData();
-        for (let i = 0; i < selectedFiles.length; i++)
-            formData.append("filedata", selectedFiles[i]);
-        formData.append("taskId", task._id);
-        const responseUpload = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-        });
+        if (selectedFiles.length) {
+            const formData = new FormData();
+            for (let i = 0; i < selectedFiles.length; i++)
+                formData.append("filedata", selectedFiles[i]);
+            formData.append("taskId", task._id);
+            const responseUpload = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
 
-        if (responseUpload.ok === true) {
+            if (responseUpload.ok === true) {
+                const taskWithFiles = await responseUpload.json();
+                reset();
+                document.querySelector("tbody").append(row(taskWithFiles));
+            }
+        }
+        else {
             reset();
             document.querySelector("tbody").append(row(task));
         }
@@ -123,7 +130,11 @@ function row(task) {
     if (task.files.length)
         task.files.forEach(file => {
             let div = document.createElement("div");
-            div.append(document.createTextNode(file));
+            let fileLink = document.createElement("a");
+            fileLink.href = "/api/download/" + task._id + "/" + file;
+            fileLink.download = file;
+            fileLink.append(file);
+            div.append(fileLink);
             filesTd.appendChild(div);
         });
     tr.append(filesTd);
