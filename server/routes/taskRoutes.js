@@ -8,7 +8,7 @@ router.get("/tasks", (req, res) => {
     res.sendFile("index.html", {root: path.join(global.appRoot, "../public")});
 });
 
-router.post("/api/add", async (req, res) => {
+router.post("/api/tasks/add", async (req, res) => {
     const saved = await taskController.add(req.body);
     if (saved)
         res.status(200).send(extracter(saved));
@@ -16,7 +16,7 @@ router.post("/api/add", async (req, res) => {
         res.status(400).send("an error occured");
 });
 
-router.get("/api/all", async (req, res) => {
+router.get("/api/tasks/all", async (req, res) => {
     if (req.query.status) {
         const saved = await taskController.getByStatus(req.query.status);
         if (saved)
@@ -33,7 +33,7 @@ router.get("/api/all", async (req, res) => {
     }
 });
 
-router.delete("/api/delete/:id", async (req, res) => {
+router.delete("/api/tasks/delete/:id", async (req, res) => {
     const id = req.params.id;
     const saved = await taskController.deleteById(id);
     if (saved)
@@ -53,7 +53,7 @@ const storageConfig = multer.diskStorage({
 });
 
 var upload = multer({storage: storageConfig});
-router.post('/api/upload', upload.array('filedata', 5), async (req, res) => {
+router.post('/api/tasks/upload', upload.array('filedata', 5), async (req, res) => {
     const saved = await taskController.addFiles(req.body.taskId, req.files);
     if (saved)
         res.status(200).send(extracter(saved));
@@ -61,7 +61,7 @@ router.post('/api/upload', upload.array('filedata', 5), async (req, res) => {
         res.status(400).send("an error occured");
 });
 
-router.get('/api/download/:id/:file', async (req, res) => {
+router.get('/api/tasks/download/:id/:file', async (req, res) => {
     const task = await taskController.getById(req.params.id);
     const fileName = req.params.file;
     const file = task.files.find(item => item.includes(fileName));

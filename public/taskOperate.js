@@ -1,5 +1,5 @@
 async function GetTasks() {
-    const response = await fetch("/api/all", {
+    const response = await fetch("/api/tasks/all", {
         method: "GET",
         headers: {
             "Accept": "application/json"
@@ -16,7 +16,7 @@ async function GetTasks() {
 }
 
 async function GetTasksByFilter(statusFilter) {
-    const response = await fetch("/api/all?status=" + statusFilter, {
+    const response = await fetch("/api/tasks/all?status=" + statusFilter, {
         method: "GET",
         headers: {
             "Accept": "application/json"
@@ -32,7 +32,7 @@ async function GetTasksByFilter(statusFilter) {
 }
 
 async function CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
-    const response = await fetch("/api/add", {
+    const response = await fetch("/api/tasks/add", {
         method: "POST",
         headers: {
             "Accept": "application/json",
@@ -54,7 +54,7 @@ async function CreateTask(taskName, taskStatus, startDate, stopDate, selectedFil
             for (let i = 0; i < selectedFiles.length; i++)
                 formData.append("filedata", selectedFiles[i]);
             formData.append("taskId", task._id);
-            const responseUpload = await fetch("/api/upload", {
+            const responseUpload = await fetch("/api/tasks/upload", {
                 method: "POST",
                 body: formData,
             });
@@ -73,7 +73,7 @@ async function CreateTask(taskName, taskStatus, startDate, stopDate, selectedFil
 }
 
 async function DeleteTask(id) {
-    const response = await fetch("/api/delete/" + id, {
+    const response = await fetch("/api/tasks/delete/" + id, {
         method: "DELETE",
         headers: {
             "Accept": "application/json"
@@ -131,7 +131,7 @@ function row(task) {
         task.files.forEach(file => {
             let div = document.createElement("div");
             let fileLink = document.createElement("a");
-            fileLink.href = "/api/download/" + task._id + "/" + file;
+            fileLink.href = "/api/tasks/download/" + task._id + "/" + file;
             fileLink.download = file;
             fileLink.append(file);
             div.append(fileLink);
