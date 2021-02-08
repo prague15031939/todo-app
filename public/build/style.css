@@ -1,0 +1,30 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+#taskForm {
+    width: 500px;
+    margin: 30px auto 30px 100px;
+}
+
+#taskTable {
+    width: 90%;
+    margin: 0px auto 50px auto;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+#removeLink {
+    cursor: pointer;
+    padding: 15px;
+}
+
+#buttonPanel {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+}

@@ -18,7 +18,7 @@
   "main": "index.js",
   "scripts": {
     "server": "nodemon server/index.js",
-    "build": "webpack --mode production"
+    "build": "webpack --mode development"
   },
   "repository": {
     "type": "git",
