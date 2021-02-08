@@ -5,7 +5,7 @@ const extracter = taskController.extractFilenames;
 const path = require("path");
 
 router.get("/tasks", (req, res) => {
-    res.sendFile("index.html", {root: path.join(global.appRoot, "../public")});
+    res.sendFile("index.html", {root: path.join(global.appRoot, "../public/build")});
 });
 
 router.post("/api/tasks/add", async (req, res) => {

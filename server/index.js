@@ -5,7 +5,7 @@ const path = require("path");
 const app = express();
 
 global.appRoot = path.resolve(__dirname);
-app.use("/static", express.static("public"));
+app.use("/static", express.static("public/build"));
 
 mongoose.connect("mongodb://127.0.0.1:27017/todo-tasks", {useUnifiedTopology: true, useNewUrlParser: true}, function(err) {
     if (err) return console.log(err);

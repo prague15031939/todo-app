@@ -1,16 +1,24 @@
 {
   "dependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/preset-react": "^7.12.10",
     "express": "^4.17.1",
     "mongoose": "^5.11.14",
     "multer": "^1.4.2",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "webpack": "^5.21.2",
+    "webpack-cli": "^4.5.0"
   },
   "name": "todo-app",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "nodemon server/index.js"
+    "server": "nodemon server/index.js",
+    "build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
@@ -22,5 +30,17 @@
     "url": "https://github.com/prague15031939/todo-app/issues"
   },
   "homepage": "https://github.com/prague15031939/todo-app#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-loader": "^8.2.2",
+    "css-loader": "^5.0.1",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.0.0",
+    "json-loader": "^0.5.7",
+    "less-loader": "^8.0.0",
+    "react-hot-loader": "^4.13.0",
+    "style-loader": "^2.0.0",
+    "url-loader": "^4.1.1"
+  }
 }
