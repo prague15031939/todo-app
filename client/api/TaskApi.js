@@ -35,7 +35,7 @@ export default {
             body: JSON.stringify({
                 name: taskName,
                 status: taskStatus,
-                start: (new Date(startDate) > Date.now() ? startDate : Date.now()),
+                start: (new Date(startDate) < Date.now() ? Date.now() : startDate),
                 stop: stopDate
             })
         });
@@ -60,6 +60,26 @@ export default {
             else {
                 return task;
             }
+        }
+    },
+
+    async UpdateTask(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles) {
+        const response = await fetch(`${apiPrefix}/api/tasks/update`, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: taskId,
+                name: taskName,
+                status: taskStatus,
+                start: startDate,
+                stop: stopDate
+            })
+        });
+        if (response.ok === true) {
+            return await response.json();
         }
     },
 

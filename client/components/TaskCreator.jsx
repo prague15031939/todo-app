@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import equal from 'fast-deep-equal'
+import moment from 'moment'
 
 class TaskCreator extends Component {
 
@@ -6,6 +8,7 @@ class TaskCreator extends Component {
         super(props);
 
         this.state = {
+            editingTaskId: null,
             taskName: "",
             taskStatus: "not started",
             startDate: new Date(),
@@ -19,6 +22,31 @@ class TaskCreator extends Component {
         this.handleStopDateChange = this.handleStopDateChange.bind(this);
         this.handleFilesChange = this.handleFilesChange.bind(this);
         this.handleCreateTask = this.handleCreateTask.bind(this);
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!equal(this.props.editingTask, prevProps.editingTask)) {
+            if (this.props.editingTask) {
+               this.setState({ 
+                    editingTaskId: this.props.editingTask._id,
+                    taskName: this.props.editingTask.name, 
+                    taskStatus: this.props.editingTask.status, 
+                    startDate: moment(this.props.editingTask.start).format("yyyy-MM-DDTHH:mm"), 
+                    stopDate: moment(this.props.editingTask.stop).format("yyyy-MM-DDTHH:mm"),
+                    files: this.props.editingTask.files,
+                });
+            }
+            else {
+                this.setState({ 
+                    editingTaskId: null,
+                    taskName: "",
+                    taskStatus: "not started",
+                    startDate: new Date(),
+                    stopDate: new Date(),
+                    files: []
+                });
+            }
+        }
     }
 
     handleNameChange(event) {
@@ -43,15 +71,29 @@ class TaskCreator extends Component {
 
     handleCreateTask(event) {
         event.preventDefault();
-        this.props.onCreateTask(
-            this.state.taskName, 
-            this.state.taskStatus, 
-            this.state.startDate, 
-            this.state.stopDate, 
-            this.state.files
-        );
+
+        if (this.state.editingTaskId) {
+            this.props.onUpdateTask(
+                this.state.editingTaskId,
+                this.state.taskName, 
+                this.state.taskStatus, 
+                this.state.startDate, 
+                this.state.stopDate, 
+                this.state.files
+            );
+        }
+        else {
+            this.props.onCreateTask(
+                this.state.taskName, 
+                this.state.taskStatus, 
+                this.state.startDate, 
+                this.state.stopDate, 
+                this.state.files
+            );
+        }
 
         this.setState({
+            editingTaskId: null,
             taskName: "",
             taskStatus: "not started",
             startDate: new Date(),
@@ -61,9 +103,10 @@ class TaskCreator extends Component {
     }
 
     render() {
+        const header = this.state.editingTaskId ? "Edit task" : "New task";
         return (
             <form id="taskForm" name="taskForm" autoComplete="off">
-                <h2>New task</h2>
+                <h2>{header}</h2>
                 <input type="hidden" name="id" value="0" />
                 <div className="form-group">
                     <label htmlFor="name">name:</label>
@@ -86,7 +129,7 @@ class TaskCreator extends Component {
                     <input id="datetime-stop" className="form-control" type="datetime-local" value={this.state.stopDate} onChange={this.handleStopDateChange}/>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="filedata">upload file:</label>
+                    <label htmlFor="filedata">upload files:</label>
                     <input name="filedata" type="file" multiple onChange={this.handleFilesChange}/>
                 </div>
                 <div id="buttonPanel">

@@ -9,12 +9,15 @@ class App extends Component {
       super(props);
 
       this.state = {
-         tasks: []
+         tasks: [],
+         editingTaskId: null,
       }
       this.handleDeleteTask = this.handleDeleteTask.bind(this);
       this.handleCreateTask = this.handleCreateTask.bind(this);
       this.handleFilterByStatus = this.handleFilterByStatus.bind(this);
       this.handleGetAll = this.handleGetAll.bind(this);
+      this.handleEditTask = this.handleEditTask.bind(this);
+      this.handleUpdateTask = this.handleUpdateTask.bind(this);
    }
 
    async componentDidMount() {
@@ -30,6 +33,12 @@ class App extends Component {
       this.setState({ tasks: await TaskApi.GetTasks() });
    }
 
+   async handleUpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles) {
+      await TaskApi.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles);
+      this.setState({ editingTaskId: null });
+      this.setState({ tasks: await TaskApi.GetTasks() });
+   }
+
    async handleDeleteTask(id) {
       await TaskApi.DeleteTask(id);
       this.setState({ tasks: await TaskApi.GetTasks() });
@@ -40,11 +49,31 @@ class App extends Component {
       this.setState({ tasks: filteredTasks });
    }
 
+   async handleEditTask(id) {
+      if (this.state.editingTaskId == id) {
+         this.setState({ editingTaskId: null }); 
+      }
+      else {
+         this.setState({ editingTaskId: id });
+      }
+   }
+
    render(){
       return(
          <div>
-            <TaskCreator onCreateTask={this.handleCreateTask} onFilter={this.handleFilterByStatus} onGetAll={this.handleGetAll}/>   
-            <TaskTable tasks={this.state.tasks} onDeleteTask={this.handleDeleteTask}/>
+            <TaskCreator 
+               editingTask={this.state.editingTaskId ? this.state.tasks.find(item => item._id == this.state.editingTaskId) : null}
+               onUpdateTask={this.handleUpdateTask}
+               onCreateTask={this.handleCreateTask} 
+               onFilter={this.handleFilterByStatus} 
+               onGetAll={this.handleGetAll}
+            />   
+            <TaskTable 
+               editingTaskId={this.state.editingTaskId}
+               tasks={this.state.tasks} 
+               onDeleteTask={this.handleDeleteTask} 
+               onEditTask={this.handleEditTask}
+            />
          </div>
       );
    }

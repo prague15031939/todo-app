@@ -17,9 +17,9 @@ h2 {
     margin-bottom: 20px;
 }
 
-#removeLink {
+#removeLink, #editLink {
     cursor: pointer;
-    padding: 15px;
+    width: 100px;
 }
 
 #buttonPanel {

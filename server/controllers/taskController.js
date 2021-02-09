@@ -26,6 +26,12 @@ exports.add = async function(taskData) {
     return await taskItem.save();
 }
 
+exports.update = async function(taskData) {
+    return await Task.findOneAndUpdate(
+        {_id: taskData.id}, {$set: {name: taskData.name, status: taskData.status, start: taskData.start, stop: taskData.stop}}
+    );
+}
+
 exports.addFiles = async function(taskId, uploadedFiles) {
     return await Task.findOneAndUpdate({_id: taskId}, {files: Array.from(uploadedFiles, item => item.path)}, {new: true});
 }

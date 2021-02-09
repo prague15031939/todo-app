@@ -16,6 +16,14 @@ router.post("/api/tasks/add", async (req, res) => {
         res.status(400).send("an error occured");
 });
 
+router.post("/api/tasks/update", async (req, res) => {
+    const saved = await taskController.update(req.body);
+    if (saved)
+        res.status(200).send(extracter(saved));
+    else
+        res.status(400).send("an error occured");
+});
+
 router.get("/api/tasks/all", async (req, res) => {
     if (req.query.status) {
         const saved = await taskController.getByStatus(req.query.status);
