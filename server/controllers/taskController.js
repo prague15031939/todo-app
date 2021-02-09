@@ -9,7 +9,7 @@ exports.extractFilenames = function(tasks) {
                 for (let j = 0; j < tasks[i].files.length; j++)
                     tasks[i].files[j] = path.basename(tasks[i].files[j]);
     } 
-    else {
+    else if (tasks.files) {
         for (let i = 0; i < tasks.files.length; i++)
             tasks.files[i] = path.basename(tasks.files[i]);
     }

@@ -17,29 +17,32 @@ class TaskCreator extends Component {
         this.handleStatusChange = this.handleStatusChange.bind(this);
         this.handleStartDateChange = this.handleStartDateChange.bind(this);
         this.handleStopDateChange = this.handleStopDateChange.bind(this);
+        this.handleFilesChange = this.handleFilesChange.bind(this);
         this.handleCreateTask = this.handleCreateTask.bind(this);
     }
 
     handleNameChange(event) {
         this.setState({ taskName: event.target.value });
-        console.log(this.state.taskName);
     };
 
     handleStatusChange(event) {
         this.setState({ taskStatus: event.target.value });
-        console.log(this.state.taskStatus);
     };
 
     handleStartDateChange(event) {
         this.setState({ startDate: event.target.value });
-        console.log(this.state.startDate);
     };
 
     handleStopDateChange(event) {
         this.setState({ stopDate: event.target.value });
     };
 
-    handleCreateTask() {
+    handleFilesChange(event) {
+        this.setState({ files: event.target.files });
+    }
+
+    handleCreateTask(event) {
+        event.preventDefault();
         this.props.onCreateTask(
             this.state.taskName, 
             this.state.taskStatus, 
@@ -84,12 +87,12 @@ class TaskCreator extends Component {
                 </div>
                 <div className="form-group">
                     <label htmlFor="filedata">upload file:</label>
-                    <input name="filedata" type="file" multiple />
+                    <input name="filedata" type="file" multiple onChange={this.handleFilesChange}/>
                 </div>
                 <div id="buttonPanel">
                     <button type="submit" className="btn btn-sm btn-primary" onClick={this.handleCreateTask}>save</button>
-                    <a id="filter" className="btn btn-sm btn-primary">filter by status</a>
-                    <a id="getall" className="btn btn-sm btn-primary">get all</a>
+                    <a id="filter" className="btn btn-sm btn-primary" onClick={this.props.onFilter.bind(null, this.state.taskStatus)}>filter by status</a>
+                    <a id="getall" className="btn btn-sm btn-primary" onClick={this.props.onGetAll}>get all</a>
                 </div>    
             </form>
         )
