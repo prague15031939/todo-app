@@ -27,13 +27,25 @@ exports.add = async function(taskData) {
 }
 
 exports.update = async function(taskData) {
+    const updatingTask = await Task.findOne({_id: taskData.id});
+    const newFiles = updatingTask.files.filter(item => {
+        let fileName = path.basename(item);
+        if (!taskData.savedFiles.includes(fileName)) {
+            fs.unlinkSync(item);
+            return false;
+        }
+        else {
+            return true;
+        }
+    });
+
     return await Task.findOneAndUpdate(
-        {_id: taskData.id}, {$set: {name: taskData.name, status: taskData.status, start: taskData.start, stop: taskData.stop}}
+        {_id: taskData.id}, {$set: {name: taskData.name, status: taskData.status, start: taskData.start, stop: taskData.stop, files: newFiles}}
     );
 }
 
 exports.addFiles = async function(taskId, uploadedFiles) {
-    return await Task.findOneAndUpdate({_id: taskId}, {files: Array.from(uploadedFiles, item => item.path)}, {new: true});
+    return await Task.findOneAndUpdate({_id: taskId}, {$push: {files: {$each: Array.from(uploadedFiles, item => item.path)}}}, {new: true});
 }
 
 exports.getAll = async function() {

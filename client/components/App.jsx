@@ -33,8 +33,8 @@ class App extends Component {
       this.setState({ tasks: await TaskApi.GetTasks() });
    }
 
-   async handleUpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles) {
-      await TaskApi.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles);
+   async handleUpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
+      await TaskApi.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
       this.setState({ editingTaskId: null });
       this.setState({ tasks: await TaskApi.GetTasks() });
    }

@@ -61,7 +61,7 @@ const storageConfig = multer.diskStorage({
 });
 
 var upload = multer({storage: storageConfig});
-router.post('/api/tasks/upload', upload.array('filedata', 5), async (req, res) => {
+router.post('/api/tasks/upload', upload.array('filedata', 20), async (req, res) => {
     const saved = await taskController.addFiles(req.body.taskId, req.files);
     if (saved)
         res.status(200).send(extracter(saved));

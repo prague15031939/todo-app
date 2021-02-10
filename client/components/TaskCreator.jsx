@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import equal from 'fast-deep-equal'
 import moment from 'moment'
+import EditorFileList from "./EditorFileList.jsx"
 
 class TaskCreator extends Component {
 
@@ -13,7 +14,8 @@ class TaskCreator extends Component {
             taskStatus: "not started",
             startDate: new Date(),
             stopDate: new Date(),
-            files: []
+            files: [],
+            editingFiles: []
         }
 
         this.handleNameChange = this.handleNameChange.bind(this);
@@ -22,6 +24,7 @@ class TaskCreator extends Component {
         this.handleStopDateChange = this.handleStopDateChange.bind(this);
         this.handleFilesChange = this.handleFilesChange.bind(this);
         this.handleCreateTask = this.handleCreateTask.bind(this);
+        this.handleFileDelete = this.handleFileDelete.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -33,7 +36,8 @@ class TaskCreator extends Component {
                     taskStatus: this.props.editingTask.status, 
                     startDate: moment(this.props.editingTask.start).format("yyyy-MM-DDTHH:mm"), 
                     stopDate: moment(this.props.editingTask.stop).format("yyyy-MM-DDTHH:mm"),
-                    files: this.props.editingTask.files,
+                    files: [],
+                    editingFiles: this.props.editingTask.files,
                 });
             }
             else {
@@ -43,7 +47,8 @@ class TaskCreator extends Component {
                     taskStatus: "not started",
                     startDate: new Date(),
                     stopDate: new Date(),
-                    files: []
+                    files: [],
+                    editingFiles: []
                 });
             }
         }
@@ -79,7 +84,8 @@ class TaskCreator extends Component {
                 this.state.taskStatus, 
                 this.state.startDate, 
                 this.state.stopDate, 
-                this.state.files
+                this.state.files,
+                this.state.editingFiles
             );
         }
         else {
@@ -98,15 +104,19 @@ class TaskCreator extends Component {
             taskStatus: "not started",
             startDate: new Date(),
             stopDate: new Date(),
-            files: []
+            files: [],
+            editingFiles: []
         });
     }
 
+    handleFileDelete(file) {
+        this.setState({ editingFiles: this.state.editingFiles.filter(item => item !== file) });
+    }
+
     render() {
-        const header = this.state.editingTaskId ? "Edit task" : "New task";
         return (
             <form id="taskForm" name="taskForm" autoComplete="off">
-                <h2>{header}</h2>
+                <h2>{this.state.editingTaskId ? "Edit task" : "New task"}</h2>
                 <input type="hidden" name="id" value="0" />
                 <div className="form-group">
                     <label htmlFor="name">name:</label>
@@ -132,6 +142,7 @@ class TaskCreator extends Component {
                     <label htmlFor="filedata">upload files:</label>
                     <input name="filedata" type="file" multiple onChange={this.handleFilesChange}/>
                 </div>
+                <EditorFileList editingTaskId={this.state.editingTaskId} files={this.state.editingFiles} onFileDelete={this.handleFileDelete} />
                 <div id="buttonPanel">
                     <button type="submit" className="btn btn-sm btn-primary" onClick={this.handleCreateTask}>save</button>
                     <a id="filter" className="btn btn-sm btn-primary" onClick={this.props.onFilter.bind(null, this.state.taskStatus)}>filter by status</a>

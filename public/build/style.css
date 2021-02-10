@@ -28,3 +28,27 @@ h2 {
     justify-content: space-between;
     width: 300px;
 }
+
+#taskFileItem {
+    width: 250px;
+    height: auto;
+    float: left;
+    border: 1px solid #DCDCDC;
+    border-radius: 1px;
+    padding: 10px;
+    transition: box-shadow .3s;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#taskFileDelete {
+    text-align: center;
+    width: 15px;
+    color: grey;
+    cursor: pointer;
+}
+
