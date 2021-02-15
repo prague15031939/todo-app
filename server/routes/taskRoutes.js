@@ -3,6 +3,7 @@ const multer = require("multer");
 const taskController = require("../controllers/taskController")
 const extracter = taskController.extractFilenames;
 const path = require("path");
+const auth = require("../middlewares/authMiddleware");
 
 router.get("/tasks", (req, res) => {
     res.sendFile("index.html", {root: path.join(global.appRoot, "../public/build")});

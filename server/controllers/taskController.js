@@ -1,6 +1,7 @@
 const Task = require("../models/Task");
 const fs = require("fs");
 const path = require("path");
+const userController = require("../controllers/userController");
 
 exports.extractFilenames = function(tasks) {
     if (tasks.length) {
