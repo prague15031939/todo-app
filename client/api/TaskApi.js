@@ -1,6 +1,19 @@
 const apiPrefix = "http://localhost:3000";
 
+async function dispatchResponse(response) {
+    if (response.ok === true) {
+        return await response.json();
+    } 
+    else {
+        return {
+            status: response.status,
+            text: await response.text(),
+        };
+    }
+}
+
 export default {
+
     async GetTasks() {
         const response = await fetch(`${apiPrefix}/api/tasks/all`, {
             method: "GET",
@@ -8,9 +21,8 @@ export default {
                 "Accept": "application/json"
             }
         });
-        if (response.ok === true) {
-            return await response.json();
-        } 
+
+        return dispatchResponse(response);
     },
 
     async GetTasksByFilter(statusFilter) {
@@ -20,9 +32,8 @@ export default {
                 "Accept": "application/json"
             }
         });
-        if (response.ok === true) {
-            return await response.json();
-        }
+
+        return dispatchResponse(response);
     },
 
     async UploadTaskFiles(response, selectedFiles) {
@@ -39,13 +50,17 @@ export default {
                     body: formData,
                 });
     
-                if (responseUpload.ok === true) {
-                    return await responseUpload.json();
-                }
+                return dispatchResponse(responseUpload);
             }
             else {
                 return task;
             }
+        }
+        else {
+            return {
+                status: response.status,
+                msg: await response.text(),
+            };
         }
     },
 
@@ -94,8 +109,7 @@ export default {
                 "Accept": "application/json"
             }
         });
-        if (response.ok === true) {
-            return await response.json();
-        }
+
+        return dispatchResponse(response);
     }
 }

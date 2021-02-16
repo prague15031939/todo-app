@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import TaskApi from "../api/TaskApi";
+import UserApi from "../api/UserApi";
 import TaskTable from "./TaskTable.jsx";
 import TaskCreator from "./TaskCreator.jsx";
+import Login from "./Login.jsx";
+import Header from "./Header.jsx";
 
 class App extends Component {
 
@@ -11,6 +14,8 @@ class App extends Component {
       this.state = {
          tasks: [],
          editingTaskId: null,
+         authorized: true,
+         currentUser: null
       }
       this.handleDeleteTask = this.handleDeleteTask.bind(this);
       this.handleCreateTask = this.handleCreateTask.bind(this);
@@ -18,35 +23,54 @@ class App extends Component {
       this.handleGetAll = this.handleGetAll.bind(this);
       this.handleEditTask = this.handleEditTask.bind(this);
       this.handleUpdateTask = this.handleUpdateTask.bind(this);
+      this.handleLoginUser = this.handleLoginUser.bind(this);
+      this.refreshTasks = this.refreshTasks.bind(this);
+   }
+
+   async refreshTasks() {
+      const res = await TaskApi.GetTasks();
+      if (res.status && res.status === 401) {
+         this.setState({ authorized: false, currentUser: null });
+         console.log(res.status, res.text);
+      }
+      else {
+         this.setState({ tasks: res });
+         this.setState({ authorized: true, currentUser: await UserApi.GetCurrent() });
+      }
    }
 
    async componentDidMount() {
-      this.setState({ tasks: await TaskApi.GetTasks() });
+      this.refreshTasks();
    }
 
    async handleGetAll() {
-      this.setState({ tasks: await TaskApi.GetTasks() });
+      this.refreshTasks();
    }
 
    async handleCreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
       await TaskApi.CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles);
-      this.setState({ tasks: await TaskApi.GetTasks() });
+      this.refreshTasks();
    }
 
    async handleUpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
       await TaskApi.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
       this.setState({ editingTaskId: null });
-      this.setState({ tasks: await TaskApi.GetTasks() });
+      this.refreshTasks();
    }
 
    async handleDeleteTask(id) {
       await TaskApi.DeleteTask(id);
-      this.setState({ tasks: await TaskApi.GetTasks() });
+      this.refreshTasks();
    }
 
    async handleFilterByStatus(status) {
-      const filteredTasks = await TaskApi.GetTasksByFilter(status);
-      this.setState({ tasks: filteredTasks });
+      const res = await TaskApi.GetTasksByFilter(status);
+      if (res.status && res.status === 401) {
+         this.setState({ authorized: false, currentUser: null });
+      }
+      else {
+         this.setState({ tasks: res });
+      }
    }
 
    async handleEditTask(id) {
@@ -58,9 +82,18 @@ class App extends Component {
       }
    }
 
-   render(){
+   async handleLoginUser(user) {
+      const res = await UserApi.LoginUser(user.email, user.password);
+      if (res.ok) {
+         this.refreshTasks();
+      }
+      console.log(res.status, res.text);
+   }
+
+   render() {
       return(
          <div>
+            <Header authorized={this.state.authorized} currentUser={this.state.currentUser} />
             <TaskCreator 
                editingTask={this.state.editingTaskId ? this.state.tasks.find(item => item._id == this.state.editingTaskId) : null}
                onUpdateTask={this.handleUpdateTask}
@@ -74,6 +107,9 @@ class App extends Component {
                onDeleteTask={this.handleDeleteTask} 
                onEditTask={this.handleEditTask}
             />
+            {
+               !this.state.authorized ? <Login onLogin={this.handleLoginUser} /> : <div></div>
+            }
          </div>
       );
    }

@@ -1,15 +1,15 @@
 const router = require("express").Router();
 const multer = require("multer");
 const taskController = require("../controllers/taskController")
+const auth = require("../middlewares/authMiddleware");
 const extracter = taskController.extractFilenames;
 const path = require("path");
-const auth = require("../middlewares/authMiddleware");
 
 router.get("/tasks", (req, res) => {
     res.sendFile("index.html", {root: path.join(global.appRoot, "../public/build")});
 });
 
-router.post("/api/tasks/add", async (req, res) => {
+router.post("/api/tasks/add", auth, async (req, res) => {
     const saved = await taskController.add(req.body);
     if (saved)
         res.status(200).send(extracter(saved));
@@ -17,7 +17,7 @@ router.post("/api/tasks/add", async (req, res) => {
         res.status(400).send("an error occured");
 });
 
-router.post("/api/tasks/update", async (req, res) => {
+router.post("/api/tasks/update", auth, async (req, res) => {
     const saved = await taskController.update(req.body);
     if (saved)
         res.status(200).send(extracter(saved));
@@ -25,7 +25,7 @@ router.post("/api/tasks/update", async (req, res) => {
         res.status(400).send("an error occured");
 });
 
-router.get("/api/tasks/all", async (req, res) => {
+router.get("/api/tasks/all", auth, async (req, res) => {
     if (req.query.status) {
         const saved = await taskController.getByStatus(req.query.status);
         if (saved)
@@ -42,7 +42,7 @@ router.get("/api/tasks/all", async (req, res) => {
     }
 });
 
-router.delete("/api/tasks/delete/:id", async (req, res) => {
+router.delete("/api/tasks/delete/:id", auth, async (req, res) => {
     const id = req.params.id;
     const saved = await taskController.deleteById(id);
     if (saved)
@@ -62,7 +62,7 @@ const storageConfig = multer.diskStorage({
 });
 
 var upload = multer({storage: storageConfig});
-router.post('/api/tasks/upload', upload.array('filedata', 20), async (req, res) => {
+router.post('/api/tasks/upload', auth, upload.array('filedata', 20), async (req, res) => {
     const saved = await taskController.addFiles(req.body.taskId, req.files);
     if (saved)
         res.status(200).send(extracter(saved));

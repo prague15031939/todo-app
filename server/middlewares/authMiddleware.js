@@ -7,7 +7,7 @@ module.exports = function (req, res, next) {
 
     try {
         const verified = jwt.verify(token, global.signature);
-        console.log(verified);
+        req.currentUser = verified.data;
         next();
     } catch(err) {
         res.status(401).send("Invalid token");
