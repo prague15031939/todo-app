@@ -8,7 +8,7 @@
     margin: 30px auto 30px 100px;
 }
 
-#loginForm {
+#loginForm, #registerForm {
     width: 300px;
 }
 
@@ -26,15 +26,24 @@ h2 {
     width: 100px;
 }
 
-#buttonPanel {
-    margin-top: 40px;
+.buttonPanel, .buttonPanelLogin {
     display: flex;
     justify-content: space-between;
     width: 300px;
 }
 
-#logbtn {
+.buttonPanel {
+    margin-top: 40px;
+}
+
+#logbtn, #regbtn, #switchbtn {
     margin-top: 20px;
+}
+
+#switchbtn {
+    color: black;
+    background-color: white;
+    border: 1px solid #dcdcdc;
 }
 
 #taskFileItem {
@@ -60,7 +69,7 @@ h2 {
     cursor: pointer;
 }
 
-.modalLogin {
+.modalLogin, .modalRegister {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -74,7 +83,7 @@ h2 {
     padding: 20px;
   }
   
-  .overlayLogin {
+  .overlayLogin, .overlayRegister {
     position: fixed;
     top: 0;
     left: 0;
@@ -106,9 +115,10 @@ h2 {
     color: grey;
     text-decoration: underline;
     font-size: 14px;
+    cursor: pointer;
   }
 
-  #notAuthenticated {
+  #notAuthorized {
     color: #f72464;
     font-size: 10px;
   }

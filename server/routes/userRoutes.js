@@ -3,12 +3,22 @@ const userController = require("../controllers/userController");
 const auth = require("../middlewares/authMiddleware");
 
 router.post("/api/user/login", async (req, res) => {
-    const valid = await userController.singIn(req.body.email, req.body.password);
+    const valid = await userController.signIn(req.body.email, req.body.password);
     if (valid) {
-        res.cookie("auth-token", valid.token, { httpOnly: true, maxAge: 20000 }).send("authenticated");
+        res.cookie("auth-token", valid.token, { httpOnly: true, maxAge: 60000 }).send("authenticated");
     }
     else {
         res.status(401).send("incorrect email or password");
+    }
+});
+
+router.post("/api/user/register", async (req, res) => {
+    const valid = await userController.signUp(req.body.username, req.body.email, req.body.password);
+    if (valid) {
+        res.cookie("auth-token", valid.token, { httpOnly: true, maxAge: 60000 }).send("registered");
+    }
+    else {
+        res.status(401).send("incorrect email");
     }
 });
 

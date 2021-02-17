@@ -19,12 +19,11 @@ exports.signUp = async function(username, email, password) {
     }
 }
 
-exports.singIn = async function(email, password) {
+exports.signIn = async function(email, password) {
     if (await userExists(email)) {
         const userRecord = await User.findOne({ email: email });
         if (userRecord && await argon2.verify(userRecord.hash, password)) {
             return {
-                username: userRecord.username,
                 token: generateJWT(userRecord),
             }
         }

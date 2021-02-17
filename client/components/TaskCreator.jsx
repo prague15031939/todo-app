@@ -143,7 +143,7 @@ class TaskCreator extends Component {
                     <input name="filedata" type="file" multiple onChange={this.handleFilesChange}/>
                 </div>
                 <EditorFileList editingTaskId={this.state.editingTaskId} files={this.state.editingFiles} onFileDelete={this.handleFileDelete} />
-                <div id="buttonPanel">
+                <div className="buttonPanel">
                     <button type="submit" className="btn btn-sm btn-primary" onClick={this.handleCreateTask}>save</button>
                     <a id="filter" className="btn btn-sm btn-primary" onClick={this.props.onFilter.bind(null, this.state.taskStatus)}>filter by status</a>
                     <a id="getall" className="btn btn-sm btn-primary" onClick={this.props.onGetAll}>get all</a>

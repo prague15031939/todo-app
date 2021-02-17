@@ -10,7 +10,7 @@ router.get("/tasks", (req, res) => {
 });
 
 router.post("/api/tasks/add", auth, async (req, res) => {
-    const saved = await taskController.add(req.body);
+    const saved = await taskController.add(req.body, req.currentUser.id);
     if (saved)
         res.status(200).send(extracter(saved));
     else
@@ -18,7 +18,7 @@ router.post("/api/tasks/add", auth, async (req, res) => {
 });
 
 router.post("/api/tasks/update", auth, async (req, res) => {
-    const saved = await taskController.update(req.body);
+    const saved = await taskController.update(req.body, req.currentUser.id);
     if (saved)
         res.status(200).send(extracter(saved));
     else
@@ -27,14 +27,14 @@ router.post("/api/tasks/update", auth, async (req, res) => {
 
 router.get("/api/tasks/all", auth, async (req, res) => {
     if (req.query.status) {
-        const saved = await taskController.getByStatus(req.query.status);
+        const saved = await taskController.getByStatus(req.query.status, req.currentUser.id);
         if (saved)
             res.status(200).send(extracter(saved));
         else
             res.status(400).send("an error occured");
     }
     else {
-        const saved = await taskController.getAll();
+        const saved = await taskController.getAll(req.currentUser.id);
         if (saved)
             res.status(200).send(extracter(saved));
         else
@@ -44,7 +44,7 @@ router.get("/api/tasks/all", auth, async (req, res) => {
 
 router.delete("/api/tasks/delete/:id", auth, async (req, res) => {
     const id = req.params.id;
-    const saved = await taskController.deleteById(id);
+    const saved = await taskController.deleteById(id, req.currentUser.id);
     if (saved)
         res.status(200).send(extracter(saved));
     else
@@ -62,7 +62,7 @@ const storageConfig = multer.diskStorage({
 });
 
 var upload = multer({storage: storageConfig});
-router.post('/api/tasks/upload', auth, upload.array('filedata', 20), async (req, res) => {
+router.post('/api/tasks/upload', upload.array('filedata', 20), async (req, res) => {
     const saved = await taskController.addFiles(req.body.taskId, req.files);
     if (saved)
         res.status(200).send(extracter(saved));

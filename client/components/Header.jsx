@@ -11,14 +11,14 @@ class Header extends Component {
             if (this.props.authorized && this.props.currentUser) {
                 return (
                     <div className="headerUsername">
-                        user: <a>{this.props.currentUser.username}</a>
+                        user: <a onClick={this.props.onLogOut}>{this.props.currentUser.username}</a>
                     </div>
                 )
             }
             else if (!this.props.authorized) {
                 return (
-                    <div id="notAuthenticated">
-                        not authenticated
+                    <div id="notAuthorized">
+                        unauthorized
                     </div>
                 )
             }

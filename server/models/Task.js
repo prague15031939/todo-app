@@ -3,6 +3,10 @@ const mongoose = require("mongoose");
 mongoose.set('useFindAndModify', false);
 
 const taskScheme = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+    },
     name: {
         type: String, 
         required: true,

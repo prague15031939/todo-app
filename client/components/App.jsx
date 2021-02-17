@@ -24,7 +24,9 @@ class App extends Component {
       this.handleEditTask = this.handleEditTask.bind(this);
       this.handleUpdateTask = this.handleUpdateTask.bind(this);
       this.handleLoginUser = this.handleLoginUser.bind(this);
+      this.handleRegisterUser = this.handleRegisterUser.bind(this);
       this.refreshTasks = this.refreshTasks.bind(this);
+      this.handleLogOut = this.handleLogOut.bind(this);
    }
 
    async refreshTasks() {
@@ -90,10 +92,22 @@ class App extends Component {
       console.log(res.status, res.text);
    }
 
+   async handleRegisterUser(user) {
+      const res = await UserApi.RegisterUser(user.username, user.email, user.password);
+      if (res.ok) {
+         this.refreshTasks();
+      }
+      console.log(res.status, res.text);
+   }
+
+   async handleLogOut() {
+      this.setState({ authorized: false, currentUser: null });
+   }
+
    render() {
       return(
          <div>
-            <Header authorized={this.state.authorized} currentUser={this.state.currentUser} />
+            <Header authorized={this.state.authorized} currentUser={this.state.currentUser} onLogOut={this.handleLogOut} />
             <TaskCreator 
                editingTask={this.state.editingTaskId ? this.state.tasks.find(item => item._id == this.state.editingTaskId) : null}
                onUpdateTask={this.handleUpdateTask}
@@ -108,7 +122,7 @@ class App extends Component {
                onEditTask={this.handleEditTask}
             />
             {
-               !this.state.authorized ? <Login onLogin={this.handleLoginUser} /> : <div></div>
+               !this.state.authorized ? <Login onLogin={this.handleLoginUser} onRegister={this.handleRegisterUser} /> : <div></div>
             }
          </div>
       );

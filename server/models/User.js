@@ -15,10 +15,6 @@ const userScheme = mongoose.Schema({
         type: String,
         required: true,
         maxlength: 100,
-    },
-    tasks: {
-        type: [mongoose.Schema.Types.ObjectId],
-        required: false,
     }
 });
 

@@ -17,8 +17,9 @@ exports.extractFilenames = function(tasks) {
     return tasks;
 }
 
-exports.add = async function(taskData) {
+exports.add = async function(taskData, userId) {
     const taskItem = new Task({
+        user: userId,
         name: taskData.name, 
         status: taskData.status,
         start: taskData.start, 
@@ -27,8 +28,12 @@ exports.add = async function(taskData) {
     return await taskItem.save();
 }
 
-exports.update = async function(taskData) {
+exports.update = async function(taskData, userId) {
     const updatingTask = await Task.findOne({_id: taskData.id});
+
+    if (updatingTask.user != userId) 
+        return null;
+
     const newFiles = updatingTask.files.filter(item => {
         let fileName = path.basename(item);
         if (!taskData.savedFiles.includes(fileName)) {
@@ -49,20 +54,24 @@ exports.addFiles = async function(taskId, uploadedFiles) {
     return await Task.findOneAndUpdate({_id: taskId}, {$push: {files: {$each: Array.from(uploadedFiles, item => item.path)}}}, {new: true});
 }
 
-exports.getAll = async function() {
-    return await Task.find({});
+exports.getAll = async function(userId) {
+    return await Task.find({ user: userId });
 }
 
-exports.getByStatus = async function(taskStatus) {
-    return await Task.find({status: taskStatus});
+exports.getByStatus = async function(taskStatus, userId) {
+    return await Task.find({status: taskStatus, user: userId});
 }
 
 exports.getById = async function(id) {
     return await Task.findOne({_id: id});
 }
 
-exports.deleteById = async function(id) {
+exports.deleteById = async function(id, userId) {
     const task = await Task.findOne({_id: id});
+
+    if (task.user != userId)
+        return null;
+
     for (const fileName of task.files)
         fs.unlinkSync(fileName);
     return await Task.findByIdAndRemove({_id: id});
