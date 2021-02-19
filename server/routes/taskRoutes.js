@@ -17,8 +17,8 @@ router.post("/api/tasks/add", auth, async (req, res) => {
         res.status(400).send("an error occured");
 });
 
-router.post("/api/tasks/update", auth, async (req, res) => {
-    const saved = await taskController.update(req.body, req.currentUser.id);
+router.put("/api/tasks/:id", auth, async (req, res) => {
+    const saved = await taskController.update(req.params.id, req.body, req.currentUser.id);
     if (saved)
         res.status(200).send(extracter(saved));
     else
@@ -43,8 +43,7 @@ router.get("/api/tasks/all", auth, async (req, res) => {
 });
 
 router.delete("/api/tasks/delete/:id", auth, async (req, res) => {
-    const id = req.params.id;
-    const saved = await taskController.deleteById(id, req.currentUser.id);
+    const saved = await taskController.deleteById(req.params.id, req.currentUser.id);
     if (saved)
         res.status(200).send(extracter(saved));
     else
@@ -62,8 +61,8 @@ const storageConfig = multer.diskStorage({
 });
 
 var upload = multer({storage: storageConfig});
-router.post('/api/tasks/upload', upload.array('filedata', 20), async (req, res) => {
-    const saved = await taskController.addFiles(req.body.taskId, req.files);
+router.post('/api/tasks/upload/:id', upload.array('filedata', 20), async (req, res) => {
+    const saved = await taskController.addFiles(req.params.id, req.files);
     if (saved)
         res.status(200).send(extracter(saved));
     else

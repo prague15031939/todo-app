@@ -28,8 +28,8 @@ exports.add = async function(taskData, userId) {
     return await taskItem.save();
 }
 
-exports.update = async function(taskData, userId) {
-    const updatingTask = await Task.findOne({_id: taskData.id});
+exports.update = async function(taskId, taskData, userId) {
+    const updatingTask = await Task.findOne({_id: taskId});
 
     if (updatingTask.user != userId) 
         return null;
@@ -46,7 +46,7 @@ exports.update = async function(taskData, userId) {
     });
 
     return await Task.findOneAndUpdate(
-        {_id: taskData.id}, {$set: {name: taskData.name, status: taskData.status, start: taskData.start, stop: taskData.stop, files: newFiles}}
+        {_id: taskId}, {$set: {name: taskData.name, status: taskData.status, start: taskData.start, stop: taskData.stop, files: newFiles}}, {new: true}
     );
 }
 

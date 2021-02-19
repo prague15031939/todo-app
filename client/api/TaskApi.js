@@ -44,8 +44,7 @@ export default {
                 const formData = new FormData();
                 for (let i = 0; i < selectedFiles.length; i++)
                     formData.append("filedata", selectedFiles[i]);
-                formData.append("taskId", task._id);
-                const responseUpload = await fetch(`${apiPrefix}/api/tasks/upload`, {
+                const responseUpload = await fetch(`${apiPrefix}/api/tasks/upload/${task._id}`, {
                     method: "POST",
                     body: formData,
                 });
@@ -83,14 +82,13 @@ export default {
     },
 
     async UpdateTask(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
-        const response = await fetch(`${apiPrefix}/api/tasks/update`, {
-            method: "POST",
+        const response = await fetch(`${apiPrefix}/api/tasks/${taskId}`, {
+            method: "PUT",
             headers: {
                 "Accept": "application/json",
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                id: taskId,
                 name: taskName,
                 status: taskStatus,
                 start: startDate,
