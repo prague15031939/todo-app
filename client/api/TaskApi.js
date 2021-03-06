@@ -1,8 +1,13 @@
+import socketIOClient from "socket.io-client";
+
 const apiPrefix = "http://localhost:3000";
+var socket = socketIOClient(apiPrefix);
 
 async function dispatchResponse(response) {
     if (response.ok === true) {
-        return await response.json();
+        var sho = await response.json();
+        console.log(sho);
+        return sho;
     } 
     else {
         return {
@@ -12,7 +17,71 @@ async function dispatchResponse(response) {
     }
 }
 
+function dispatchResponse_(data) {
+    if (data.status === 200) {
+        return data.result;
+    } 
+    else {
+        return {
+            status: data.status,
+            text: data.text,
+        };
+    }
+}
+
 export default {
+
+    RegisterSocketEvents() {
+        socket.on("connected", (obj) => console.log(obj));
+    },
+
+    GetTasks_() {
+        return new Promise((resolve, reject) => {
+            socket.emit("all", (data) => {
+                resolve(dispatchResponse_(data));
+            });
+        });
+    },
+
+    GetTasksByFilter_(statusFilter) {
+        return new Promise((resolve, reject) => {
+            socket.emit("filter", statusFilter, (data) => {
+                resolve(dispatchResponse_(data));
+            });
+        });
+    },
+
+    CreateTask_(taskName, taskStatus, startDate, stopDate, selectedFiles) {
+        var body = {
+            name: taskName,
+            status: taskStatus,
+            start: (new Date(startDate) < Date.now() ? Date.now() : startDate),
+            stop: stopDate
+        };
+
+        socket.emit("add", body, (data) => {
+            dispatchResponse_(data);
+        });
+    },
+
+    UpdateTask_(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
+        var body = {
+            name: taskName,
+            status: taskStatus,
+            start: startDate,
+            stop: stopDate,
+            savedFiles: editedFiles
+        };
+        socket.emit("update", taskId, body, (data) => {
+            dispatchResponse_(data);
+        });
+    },
+
+    DeleteTask_(taskId) {
+        socket.emit("delete", taskId, (data) => {
+            dispatchResponse_(data);
+        });
+    },
 
     async GetTasks() {
         const response = await fetch(`${apiPrefix}/api/tasks/all`, {

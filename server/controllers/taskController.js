@@ -18,6 +18,7 @@ exports.extractFilenames = function(tasks) {
 }
 
 exports.add = async function(taskData, userId) {
+    console.log(taskData);
     const taskItem = new Task({
         user: userId,
         name: taskData.name, 
@@ -31,9 +32,11 @@ exports.add = async function(taskData, userId) {
 exports.update = async function(taskId, taskData, userId) {
     const updatingTask = await Task.findOne({_id: taskId});
 
-    if (updatingTask.user != userId) 
-        return null;
+    if (userId != null) //
+        if (updatingTask.user != userId) 
+            return null;
 
+    /*if (userId != null) { //
     const newFiles = updatingTask.files.filter(item => {
         let fileName = path.basename(item);
         if (!taskData.savedFiles.includes(fileName)) {
@@ -43,7 +46,12 @@ exports.update = async function(taskId, taskData, userId) {
         else {
             return true;
         }
-    });
+    });*/
+    //}//
+    //else { //
+        const newFiles = updatingTask.files; //
+    //}//
+    console.log(taskData, updatingTask);
 
     return await Task.findOneAndUpdate(
         {_id: taskId}, {$set: {name: taskData.name, status: taskData.status, start: taskData.start, stop: taskData.stop, files: newFiles}}, {new: true}
@@ -55,11 +63,17 @@ exports.addFiles = async function(taskId, uploadedFiles) {
 }
 
 exports.getAll = async function(userId) {
-    return await Task.find({ user: userId });
+    if (userId == null)
+        return await Task.find();
+    else
+        return await Task.find({ user: userId });
 }
 
 exports.getByStatus = async function(taskStatus, userId) {
-    return await Task.find({status: taskStatus, user: userId});
+    if (userId == null)
+        return await Task.find({status: taskStatus});
+    else
+        return await Task.find({status: taskStatus, user: userId});
 }
 
 exports.getById = async function(id) {
@@ -69,8 +83,9 @@ exports.getById = async function(id) {
 exports.deleteById = async function(id, userId) {
     const task = await Task.findOne({_id: id});
 
-    if (task.user != userId)
-        return null;
+    if (userId != null) //
+        if (task.user != userId)
+            return null;
 
     for (const fileName of task.files)
         fs.unlinkSync(fileName);

@@ -30,7 +30,7 @@ class App extends Component {
    }
 
    async refreshTasks() {
-      const res = await TaskApi.GetTasks();
+      const res = await TaskApi.GetTasks_().then(function(data) { return data; });
       if (res.status && res.status === 401) {
          this.setState({ authorized: false, currentUser: null });
          console.log(res.status, res.text);
@@ -42,6 +42,7 @@ class App extends Component {
    }
 
    async componentDidMount() {
+      TaskApi.RegisterSocketEvents();
       this.refreshTasks();
    }
 
@@ -50,23 +51,24 @@ class App extends Component {
    }
 
    async handleCreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
-      await TaskApi.CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles);
+      TaskApi.CreateTask_(taskName, taskStatus, startDate, stopDate, selectedFiles);
       this.refreshTasks();
    }
 
    async handleUpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
-      await TaskApi.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
+      TaskApi.UpdateTask_(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
       this.setState({ editingTaskId: null });
       this.refreshTasks();
    }
 
    async handleDeleteTask(id) {
-      await TaskApi.DeleteTask(id);
+      TaskApi.DeleteTask_(id);
       this.refreshTasks();
    }
 
    async handleFilterByStatus(status) {
-      const res = await TaskApi.GetTasksByFilter(status);
+      const res = await TaskApi.GetTasksByFilter_(status).then(function(data) { return data; });
+      console.log(res);
       if (res.status && res.status === 401) {
          this.setState({ authorized: false, currentUser: null });
       }

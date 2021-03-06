@@ -25,7 +25,7 @@ router.put("/api/tasks/:id", auth, async (req, res) => {
         res.status(400).send("an error occured");
 });
 
-router.get("/api/tasks/all", auth, async (req, res) => {
+router.get("/api/tasks/all"/*, auth*/, async (req, res) => {
     if (req.query.status) {
         const saved = await taskController.getByStatus(req.query.status, req.currentUser.id);
         if (saved)
@@ -34,7 +34,7 @@ router.get("/api/tasks/all", auth, async (req, res) => {
             res.status(400).send("an error occured");
     }
     else {
-        const saved = await taskController.getAll(req.currentUser.id);
+        const saved = await taskController.getAll(null);//req.currentUser.id);
         if (saved)
             res.status(200).send(extracter(saved));
         else
