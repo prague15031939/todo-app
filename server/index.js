@@ -1,24 +1,24 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const tasksRoutes = require("./routes/taskRoutes");
-const usersRoutes = require("./routes/userRoutes");
-const socketEvents = require("./routes/socketEvents");
-const cookies = require("cookie-parser");
+const fileRoutes = require("./routes/taskRoutes");
+const taskSocketEvents = require("./routes/taskSocketEvents");
+const userSocketEvents = require("./routes/userSocketEvents");
+const auth = require("./middlewares/authMiddleware");
 const path = require("path");
 const app = express();
 
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 
-global.appRoot = path.resolve(__dirname);
 global.signature = "EsMeRaLdA_sHo_777";
-app.use("/static", express.static("public/build"));
 
 io.on("connection", (socket) => {
-	var time = (new Date).toLocaleTimeString();
-    console.log(`${socket.id} connected at ${time}`);
-	socket.emit("connected", { 'name': socket.id, 'time': time });
-    socketEvents.RegisterSocketEvents(socket);
+    //socket.use((packet, next) => {
+    //    auth.verifyToken(socket, packet, next);
+    //});
+
+    taskSocketEvents.RegisterSocketEvents(socket);
+    userSocketEvents.RegisterSocketEvents(socket);
 });
 
 mongoose.connect("mongodb://127.0.0.1:27017/todo-tasks", {useUnifiedTopology: true, useNewUrlParser: true}, function(err) {
@@ -26,8 +26,13 @@ mongoose.connect("mongodb://127.0.0.1:27017/todo-tasks", {useUnifiedTopology: tr
 });
 
 app.use(express.json());
-app.use(cookies());
 
-app.use("/", tasksRoutes);
-app.use("/", usersRoutes);
+global.appRoot = path.resolve(__dirname);
+app.use("/static", express.static("public/build"));
+app.get("/tasks", (req, res) => {
+    res.sendFile("index.html", {root: path.join(global.appRoot, "../public/build")});
+});
+
+app.use("/", fileRoutes);
+
 http.listen(3000, () => console.log("Server is running"));

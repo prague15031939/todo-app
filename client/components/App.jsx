@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import TaskApi from "../api/TaskApi";
-import UserApi from "../api/UserApi";
+import api from "../api/api";
 import TaskTable from "./TaskTable.jsx";
 import TaskCreator from "./TaskCreator.jsx";
 import Login from "./Login.jsx";
@@ -30,19 +29,19 @@ class App extends Component {
    }
 
    async refreshTasks() {
-      const res = await TaskApi.GetTasks_().then(function(data) { return data; });
+      const res = await api.GetTasks().then(function(data) { return data; });
       if (res.status && res.status === 401) {
          this.setState({ authorized: false, currentUser: null });
          console.log(res.status, res.text);
       }
       else {
          this.setState({ tasks: res });
-         this.setState({ authorized: true, currentUser: await UserApi.GetCurrent() });
+         const user = await api.GetCurrent().then(function(data) { return data; })
+         this.setState({ authorized: true, currentUser: user.result });
       }
    }
 
    async componentDidMount() {
-      TaskApi.RegisterSocketEvents();
       this.refreshTasks();
    }
 
@@ -51,24 +50,23 @@ class App extends Component {
    }
 
    async handleCreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
-      TaskApi.CreateTask_(taskName, taskStatus, startDate, stopDate, selectedFiles);
+      api.CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles);
       this.refreshTasks();
    }
 
    async handleUpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
-      TaskApi.UpdateTask_(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
+      api.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
       this.setState({ editingTaskId: null });
       this.refreshTasks();
    }
 
    async handleDeleteTask(id) {
-      TaskApi.DeleteTask_(id);
+      await api.DeleteTask(id).then(function(data) { return data; });
       this.refreshTasks();
    }
 
    async handleFilterByStatus(status) {
-      const res = await TaskApi.GetTasksByFilter_(status).then(function(data) { return data; });
-      console.log(res);
+      const res = await api.GetTasksByFilter(status).then(function(data) { return data; });
       if (res.status && res.status === 401) {
          this.setState({ authorized: false, currentUser: null });
       }
@@ -87,16 +85,17 @@ class App extends Component {
    }
 
    async handleLoginUser(user) {
-      const res = await UserApi.LoginUser(user.email, user.password);
-      if (res.ok) {
+      const res = await api.LoginUser(user.email, user.password).then(function(data) { return data; });
+      if (res.status === 200) {
+         this.setState({ authorized: true });
          this.refreshTasks();
       }
       console.log(res.status, res.text);
    }
 
    async handleRegisterUser(user) {
-      const res = await UserApi.RegisterUser(user.username, user.email, user.password);
-      if (res.ok) {
+      const res = await api.RegisterUser(user.username, user.email, user.password).then(function(data) { return data; });
+      if (res.status === 200) {
          this.refreshTasks();
       }
       console.log(res.status, res.text);

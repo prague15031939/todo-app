@@ -1,54 +1,8 @@
 const router = require("express").Router();
 const multer = require("multer");
 const taskController = require("../controllers/taskController")
-const auth = require("../middlewares/authMiddleware");
 const extracter = taskController.extractFilenames;
 const path = require("path");
-
-router.get("/tasks", (req, res) => {
-    res.sendFile("index.html", {root: path.join(global.appRoot, "../public/build")});
-});
-
-router.post("/api/tasks/add", auth, async (req, res) => {
-    const saved = await taskController.add(req.body, req.currentUser.id);
-    if (saved)
-        res.status(200).send(extracter(saved));
-    else
-        res.status(400).send("an error occured");
-});
-
-router.put("/api/tasks/:id", auth, async (req, res) => {
-    const saved = await taskController.update(req.params.id, req.body, req.currentUser.id);
-    if (saved)
-        res.status(200).send(extracter(saved));
-    else
-        res.status(400).send("an error occured");
-});
-
-router.get("/api/tasks/all"/*, auth*/, async (req, res) => {
-    if (req.query.status) {
-        const saved = await taskController.getByStatus(req.query.status, req.currentUser.id);
-        if (saved)
-            res.status(200).send(extracter(saved));
-        else
-            res.status(400).send("an error occured");
-    }
-    else {
-        const saved = await taskController.getAll(null);//req.currentUser.id);
-        if (saved)
-            res.status(200).send(extracter(saved));
-        else
-            res.status(400).send("an error occured");
-    }
-});
-
-router.delete("/api/tasks/delete/:id", auth, async (req, res) => {
-    const saved = await taskController.deleteById(req.params.id, req.currentUser.id);
-    if (saved)
-        res.status(200).send(extracter(saved));
-    else
-        res.status(400).send("an error occured");
-});
 
 const storageConfig = multer.diskStorage({
     destination: (req, file, cb) => {
