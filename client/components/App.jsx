@@ -52,12 +52,12 @@ class App extends Component {
    }
 
    async handleCreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
-      api.CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles);
+      await api.CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles);
       this.refreshTasks();
    }
 
    async handleUpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
-      api.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
+      await api.UpdateTask(id, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles);
       this.setState({ editingTaskId: null });
       this.refreshTasks();
    }

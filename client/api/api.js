@@ -13,6 +13,7 @@ function dispatchResponse(data) {
     } 
     else {
         return {
+            err: true,
             status: data.status,
             text: data.text,
         };
@@ -61,18 +62,17 @@ export default {
         });
     },
 
-    UploadTaskFiles_(selectedFiles, taskId) {
+    async UploadTaskFiles(selectedFiles, taskId) {
         checkAuthCookie();
-        if (selectedFiles.length) {
-           socket.emit("upload", taskId, (data) => {
-                var uploader = new SocketIOFileUpload(socket);
-                uploader.submitFiles(selectedFiles);
-                dispatchResponse(data);
-            });
-        }
+        var uploader = new SocketIOFileUpload(socket);
+        uploader.addEventListener("start", function(event) {
+            event.file.meta.taskId = taskId;
+        });
+        uploader.submitFiles(selectedFiles);
+        await new Promise(resolve => setTimeout(resolve, selectedFiles.length * 100));
     },
 
-    CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
+    async CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
         checkAuthCookie();
         var body = {
             name: taskName,
@@ -81,14 +81,18 @@ export default {
             stop: stopDate
         };
 
-        socket.emit("add", body, (data) => {
-            dispatchResponse(data);
-        });
+        const created = await new Promise((resolve, reject) => {
+            socket.emit("add", body, (data) => {
+                resolve(dispatchResponse(data));
+            });
+        }).then(function(data) { return data; });
 
-        this.UploadTaskFiles_(selectedFiles, 0);
+        if (selectedFiles.length && !created.err) {
+            await this.UploadTaskFiles(selectedFiles, created._id);
+        }
     },
 
-    UpdateTask(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
+    async UpdateTask(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
         checkAuthCookie();
         var body = {
             name: taskName,
@@ -98,11 +102,15 @@ export default {
             savedFiles: editedFiles
         };
 
-        socket.emit("update", taskId, body, (data) => {
-            dispatchResponse(data);
-        });
+        const updated = await new Promise((resolve, reject) => {
+            socket.emit("update", taskId, body, (data) => {
+                resolve(dispatchResponse(data));
+            });
+        }).then(function(data) { return data; });
 
-        this.UploadTaskFiles_(selectedFiles, taskId);
+        if (selectedFiles.length && !updated.err) {
+            await this.UploadTaskFiles(selectedFiles, updated._id);
+        }
     },
 
     DeleteTask(taskId) {
@@ -147,32 +155,5 @@ export default {
                 resolve(dispatchResponse(data));
             });
         });
-    },
-
-    async UploadTaskFiles(response, selectedFiles) {
-        if (response.ok === true) {
-            const task = await response.json();
-
-            if (selectedFiles.length) {
-                const formData = new FormData();
-                for (let i = 0; i < selectedFiles.length; i++)
-                    formData.append("filedata", selectedFiles[i]);
-                const responseUpload = await fetch(`${apiPrefix}/api/tasks/upload/${task._id}`, {
-                    method: "POST",
-                    body: formData,
-                });
-    
-                return dispatchResponse(responseUpload);
-            }
-            else {
-                return task;
-            }
-        }
-        else {
-            return {
-                status: response.status,
-                msg: await response.text(),
-            };
-        }
     },
 }

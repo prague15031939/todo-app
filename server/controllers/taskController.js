@@ -50,6 +50,10 @@ exports.update = async function(taskId, taskData, userId) {
     );
 }
 
+exports.addFile = async function(taskId, uploadedFile) {
+    return await Task.findOneAndUpdate({_id: taskId}, {$push: {files: uploadedFile.pathName}}, {new: true});
+}
+
 exports.addFiles = async function(taskId, uploadedFiles) {
     return await Task.findOneAndUpdate({_id: taskId}, {$push: {files: {$each: Array.from(uploadedFiles, item => item.path)}}}, {new: true});
 }

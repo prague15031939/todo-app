@@ -11,7 +11,7 @@ class EditorFileList extends Component {
         const taskFiles = !this.props.editingTaskId ? <div></div> : this.props.files.map(file => {
             return (
                 <div id="taskFileItem" key={file}>
-                    <div><a onClick={this.props.onFileDownload.bind(null, this.props.editingTaskId, file)}>{file}</a></div>
+                    <div><a id="downloadLink" onClick={this.props.onFileDownload.bind(null, this.props.editingTaskId, file)}>{file}</a></div>
                     <div id="taskFileDelete" onClick={this.props.onFileDelete.bind(null, file)}>x</div>
                 </div>
             );

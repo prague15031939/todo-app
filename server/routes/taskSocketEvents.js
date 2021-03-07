@@ -7,10 +7,6 @@ const extracter = taskController.extractFilenames;
 
 exports.RegisterSocketEvents = function(socket) {
 
-    var fileUploader = new siofu();
-    fileUploader.dir = path.join(global.appRoot, "../uploads");
-    fileUploader.listen(socket);
-
     socket.on("all", async function (callback) {
         const valid = auth.verifyToken(socket);
         if (valid.error) {
@@ -81,10 +77,6 @@ exports.RegisterSocketEvents = function(socket) {
             callback({status: 400, text: 'an error occured'});
     });
 
-    socket.on("upload", async function (taskId, callback) {        
-        callback({status: 200, result: true});
-    });
-
     socket.on("download", async function(taskId, filename, callback) {
         const task = await taskController.getById(taskId);
         const file = task.files.find(item => item.includes(filename));
@@ -96,5 +88,18 @@ exports.RegisterSocketEvents = function(socket) {
                 callback({status: 400, text: 'an error occured'});
         });
    });
+
+   var fileUploader = new siofu();
+   fileUploader.dir = path.join(global.appRoot, "../uploads");
+   fileUploader.on("start", (event) => {
+       const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+       event.file.name = uniquePrefix + "." + event.file.name.split('.').pop();
+   });
+   fileUploader.on("saved", async (event) => {
+       if (event.file.success) {
+           await taskController.addFile(event.file.meta.taskId, event.file);
+       }
+   });
+   fileUploader.listen(socket);
 
 }
