@@ -39,7 +39,7 @@ class TaskTable extends Component {
                                 <td>{task.status}</td>
                                 <td>{new Date(task.start).toLocaleDateString("en-US", datetimeOptions)}</td>
                                 <td>{new Date(task.stop).toLocaleDateString("en-US", datetimeOptions)}</td>
-                                <td><FileList files={task.files} taskId={task._id}/></td>
+                                <td><FileList files={task.files} taskId={task._id} onFileDownload={this.props.onFileDownload}/></td>
                                 <td>
                                     <div><a id="removeLink" onClick={this.props.onDeleteTask.bind(null, task._id)}>delete</a></div>
                                     <div><a id="editLink" onClick={this.props.onEditTask.bind(null, task._id)}>edit</a></div>

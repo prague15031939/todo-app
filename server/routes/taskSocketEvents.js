@@ -1,9 +1,15 @@
 const taskController = require("../controllers/taskController")
 const auth = require("../middlewares/authMiddleware");
+const siofu = require("socketio-file-upload");
+const path = require("path");
+const fs = require('fs');
 const extracter = taskController.extractFilenames;
 
 exports.RegisterSocketEvents = function(socket) {
-    var id = (socket.id).toString();
+
+    var fileUploader = new siofu();
+    fileUploader.dir = path.join(global.appRoot, "../uploads");
+    fileUploader.listen(socket);
 
     socket.on("all", async function (callback) {
         const valid = auth.verifyToken(socket);
@@ -74,4 +80,21 @@ exports.RegisterSocketEvents = function(socket) {
         else 
             callback({status: 400, text: 'an error occured'});
     });
+
+    socket.on("upload", async function (taskId, callback) {        
+        callback({status: 200, result: true});
+    });
+
+    socket.on("download", async function(taskId, filename, callback) {
+        const task = await taskController.getById(taskId);
+        const file = task.files.find(item => item.includes(filename));
+
+        fs.readFile(file, function(err, buf) {
+            if (!err)
+                callback({status: 200, result: buf});
+            else 
+                callback({status: 400, text: 'an error occured'});
+        });
+   });
+
 }

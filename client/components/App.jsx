@@ -4,6 +4,7 @@ import TaskTable from "./TaskTable.jsx";
 import TaskCreator from "./TaskCreator.jsx";
 import Login from "./Login.jsx";
 import Header from "./Header.jsx";
+import download from 'js-file-download';
 
 class App extends Component {
 
@@ -22,6 +23,7 @@ class App extends Component {
       this.handleGetAll = this.handleGetAll.bind(this);
       this.handleEditTask = this.handleEditTask.bind(this);
       this.handleUpdateTask = this.handleUpdateTask.bind(this);
+      this.handleDownloadFile = this.handleDownloadFile.bind(this);
       this.handleLoginUser = this.handleLoginUser.bind(this);
       this.handleRegisterUser = this.handleRegisterUser.bind(this);
       this.refreshTasks = this.refreshTasks.bind(this);
@@ -84,6 +86,10 @@ class App extends Component {
       }
    }
 
+   async handleDownloadFile(taskId, file) {
+      await api.DownloadFile(taskId, file).then(function(data) { download(data, file); });
+   }
+
    async handleLoginUser(user) {
       const res = await api.LoginUser(user.email, user.password).then(function(data) { return data; });
       if (res.status === 200) {
@@ -115,12 +121,14 @@ class App extends Component {
                onCreateTask={this.handleCreateTask} 
                onFilter={this.handleFilterByStatus} 
                onGetAll={this.handleGetAll}
+               onFileDownload={this.handleDownloadFile}
             />   
             <TaskTable 
                editingTaskId={this.state.editingTaskId}
                tasks={this.state.tasks} 
                onDeleteTask={this.handleDeleteTask} 
                onEditTask={this.handleEditTask}
+               onFileDownload={this.handleDownloadFile}
             />
             {
                !this.state.authorized ? <Login onLogin={this.handleLoginUser} onRegister={this.handleRegisterUser} /> : <div></div>

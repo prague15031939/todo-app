@@ -34,7 +34,7 @@ exports.update = async function(taskId, taskData, userId) {
     if (updatingTask.user != userId) 
         return null;
 
-    /*const newFiles = updatingTask.files.filter(item => {
+    const newFiles = updatingTask.files.filter(item => {
         let fileName = path.basename(item);
         if (!taskData.savedFiles.includes(fileName)) {
             fs.unlinkSync(item);
@@ -43,9 +43,7 @@ exports.update = async function(taskId, taskData, userId) {
         else {
             return true;
         }
-    });*/
-
-    const newFiles = updatingTask.files;
+    });
 
     return await Task.findOneAndUpdate(
         {_id: taskId}, {$set: {name: taskData.name, status: taskData.status, start: taskData.start, stop: taskData.stop, files: newFiles}}, {new: true}

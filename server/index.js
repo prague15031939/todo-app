@@ -13,10 +13,6 @@ const io = require("socket.io")(http);
 global.signature = "EsMeRaLdA_sHo_777";
 
 io.on("connection", (socket) => {
-    //socket.use((packet, next) => {
-    //    auth.verifyToken(socket, packet, next);
-    //});
-
     taskSocketEvents.RegisterSocketEvents(socket);
     userSocketEvents.RegisterSocketEvents(socket);
 });

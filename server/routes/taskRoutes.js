@@ -23,14 +23,4 @@ router.post('/api/tasks/upload/:id', upload.array('filedata', 20), async (req, r
         res.status(400).send("an error occured");
 });
 
-router.get('/api/tasks/download/:id/:file', async (req, res) => {
-    const task = await taskController.getById(req.params.id);
-    const fileName = req.params.file;
-    const file = task.files.find(item => item.includes(fileName));
-    if (file)
-        res.download(file);
-    else
-        res.status(400).send("an error occured");
-});
-
 module.exports = router;

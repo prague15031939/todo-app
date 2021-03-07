@@ -12,7 +12,7 @@ class FileList extends Component {
                 <div>
                     {
                         this.props.files.map(file =>
-                            <div key={file}><a href={`/api/tasks/download/${this.props.taskId}/${file}`} download={file}>{file}</a></div>
+                            <div key={file}><a id="downloadLink" onClick={this.props.onFileDownload.bind(null, this.props.taskId, file)}>{file}</a></div>
                         )
                     }
                 </div>
