@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const tasksRoutes = require("./routes/taskRoutes");
 const usersRoutes = require("./routes/userRoutes");
 const cookies = require("cookie-parser");
+const graphqlConfig = require("./graphql/graphqlConfig");
 const path = require("path");
 const app = express();
 
@@ -16,6 +17,8 @@ mongoose.connect("mongodb://127.0.0.1:27017/todo-tasks", {useUnifiedTopology: tr
 
 app.use(express.json());
 app.use(cookies());
+
+app.use('/graphql', graphqlConfig.Create());
 
 app.use("/", tasksRoutes);
 app.use("/", usersRoutes);
