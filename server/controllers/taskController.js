@@ -31,7 +31,7 @@ exports.add = async function(taskData, userId) {
 exports.update = async function(taskId, taskData, userId) {
     const updatingTask = await Task.findOne({_id: taskId});
 
-    if (updatingTask.user != userId) 
+    if (updatingTask.user != userId)
         return null;
 
     const newFiles = updatingTask.files.filter(item => {

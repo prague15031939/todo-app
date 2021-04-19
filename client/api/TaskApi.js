@@ -15,25 +15,68 @@ async function dispatchResponse(response) {
 export default {
 
     async GetTasks() {
-        const response = await fetch(`${apiPrefix}/api/tasks/all`, {
-            method: "GET",
+        const query = `
+            query getAllTasks($userId: String!) {
+                all(userId: $userId) {
+                _id
+                name
+                status
+                start
+                stop
+                files
+                }
+            }`;
+        const response = await fetch(`${apiPrefix}/graphql`, {
+            method: 'POST',
             headers: {
-                "Accept": "application/json"
-            }
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+              query,
+              variables: { userId: "602afbd61c7e5e4758898329" },
+            })
         });
 
-        return dispatchResponse(response);
+        const decoded = await response.json();
+        decoded.data.all.forEach(item => { 
+            item.start = new Date(parseInt(item.start));
+            item.stop = new Date(parseInt(item.stop));
+        });
+        return decoded.data.all;
     },
 
     async GetTasksByFilter(statusFilter) {
-        const response = await fetch(`${apiPrefix}/api/tasks/all?status=${statusFilter}`, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
+        const query = `
+            query getFilteredTasks($userId: String!, $status: String!) {
+                filter(userId: $userId, status: $status) {
+                _id
+                name
+                status
+                start
+                stop
+                files
+                }
             }
+        `;
+        const response = await fetch(`${apiPrefix}/graphql`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+              query,
+              variables: { userId: "602afbd61c7e5e4758898329", status: statusFilter },
+            })
         });
 
-        return dispatchResponse(response);
+        const decoded = await response.json();
+        decoded.data.filter.forEach(item => { 
+            item.start = new Date(parseInt(item.start));
+            item.stop = new Date(parseInt(item.stop));
+        });
+        return decoded.data.filter;
     },
 
     async UploadTaskFiles(response, selectedFiles) {
@@ -64,50 +107,87 @@ export default {
     },
 
     async CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
-        const response = await fetch(`${apiPrefix}/api/tasks/add`, {
+        const query = `
+            mutation addTask($userId: String!, $name: String!, $status: String!, $start: String, $stop: String!) {
+                add(userId: $userId, name: $name, status: $status, start: $start, stop: $stop) {
+                    _id    
+                }  
+            }
+        `;
+        const response = await fetch(`${apiPrefix}/graphql`, {
             method: "POST",
             headers: {
                 "Accept": "application/json",
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: taskName,
-                status: taskStatus,
-                start: (new Date(startDate) < Date.now() ? Date.now() : startDate),
-                stop: stopDate
+                query,
+                variables: { 
+                    userId: "602afbd61c7e5e4758898329",
+                    name: taskName,
+                    status: taskStatus,
+                    start: (new Date(startDate) < Date.now() ? Date.now() : startDate).toString(),
+                    stop: stopDate.toString()
+                },
             })
         });
     
-        return await this.UploadTaskFiles(response, selectedFiles);
+        console.log(await response.json());
+        //return await this.UploadTaskFiles(response, selectedFiles);
     },
 
     async UpdateTask(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
-        const response = await fetch(`${apiPrefix}/api/tasks/${taskId}`, {
-            method: "PUT",
+        const query = `
+            mutation updateTask($userId: String!, $taskId: String!, $name: String!, $status: String!, $start: String!, $stop: String!, $savedFiles: [String]) {
+                update(userId: $userId, taskId: $taskId, name: $name, status: $status, start: $start, stop: $stop, savedFiles: $savedFiles) {
+                    _id    
+                }
+            }
+        `;
+        const response = await fetch(`${apiPrefix}/graphql`, {
+            method: "POST",
             headers: {
                 "Accept": "application/json",
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                name: taskName,
-                status: taskStatus,
-                start: startDate,
-                stop: stopDate,
-                savedFiles: editedFiles
+                query, 
+                variables: {
+                    userId: "602afbd61c7e5e4758898329",
+                    taskId: taskId,
+                    name: taskName,
+                    status: taskStatus,
+                    start: startDate.toString(),
+                    stop: stopDate.toString(),
+                    savedFiles: editedFiles
+                }
             })
         });
 
-        return await this.UploadTaskFiles(response, selectedFiles);
+        console.log(await response.json());
+        //return await this.UploadTaskFiles(response, selectedFiles);
     },
 
-    async DeleteTask(id) {
-        const response = await fetch(`${apiPrefix}/api/tasks/delete/${id}`, {
-            method: "DELETE",
-            headers: {
-                "Accept": "application/json"
+    async DeleteTask(taskId) {
+        const query = `
+            mutation deleteTask($userId: String!, $taskId: String!) {
+                delete(userId: $userId, taskId: $taskId) {
+                    _id
+                }
             }
+        `;
+        const response = await fetch(`${apiPrefix}/graphql`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                query,
+                variables: { userId: "602afbd61c7e5e4758898329", taskId: taskId },
+            })
         });
 
-        return dispatchResponse(response);
+        console.log(await response.json());
     }
 }

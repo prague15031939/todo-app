@@ -8,7 +8,7 @@ var schema = buildSchema(`
         filter(userId: String!, status: String!): [Task]
     },
     type Mutation {
-        add(userId: String!, name: String!, status: String!, start: String!, stop: String!): Task
+        add(userId: String!, name: String!, status: String!, start: String, stop: String!): Task
         update(userId: String!, taskId: String!, name: String!, status: String!, start: String!, stop: String!, savedFiles: [String]): Task
         delete(userId: String!, taskId: String!): Task
     },
@@ -32,6 +32,8 @@ var rootResolver = {
     all: actions.getAllTasks,
     filter: actions.getFilteredTasks,
     add: actions.addTask,
+    update: actions.updateTask,
+    delete: actions.deleteTask
 };
 
 exports.Create = function () {
