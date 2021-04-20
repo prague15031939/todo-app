@@ -16,14 +16,14 @@ export default {
 
     async GetTasks() {
         const query = `
-            query getAllTasks($userId: String!) {
-                all(userId: $userId) {
-                _id
-                name
-                status
-                start
-                stop
-                files
+            query getAllTasks {
+                all {
+                    _id
+                    name
+                    status
+                    start
+                    stop
+                    files
                 }
             }`;
         const response = await fetch(`${apiPrefix}/graphql`, {
@@ -33,12 +33,12 @@ export default {
               'Accept': 'application/json',
             },
             body: JSON.stringify({
-              query,
-              variables: { userId: "602afbd61c7e5e4758898329" },
+                query
             })
         });
 
         const decoded = await response.json();
+        if (decoded.data.all == null) return null;
         decoded.data.all.forEach(item => { 
             item.start = new Date(parseInt(item.start));
             item.stop = new Date(parseInt(item.stop));
@@ -48,14 +48,14 @@ export default {
 
     async GetTasksByFilter(statusFilter) {
         const query = `
-            query getFilteredTasks($userId: String!, $status: String!) {
-                filter(userId: $userId, status: $status) {
-                _id
-                name
-                status
-                start
-                stop
-                files
+            query getFilteredTasks($status: String!) {
+                filter(status: $status) {
+                    _id
+                    name
+                    status
+                    start
+                    stop
+                    files
                 }
             }
         `;
@@ -66,12 +66,13 @@ export default {
               'Accept': 'application/json',
             },
             body: JSON.stringify({
-              query,
-              variables: { userId: "602afbd61c7e5e4758898329", status: statusFilter },
+                query,
+                variables: { status: statusFilter },
             })
         });
 
         const decoded = await response.json();
+        if (decoded.data.filter == null) return null;
         decoded.data.filter.forEach(item => { 
             item.start = new Date(parseInt(item.start));
             item.stop = new Date(parseInt(item.stop));
@@ -108,8 +109,8 @@ export default {
 
     async CreateTask(taskName, taskStatus, startDate, stopDate, selectedFiles) {
         const query = `
-            mutation addTask($userId: String!, $name: String!, $status: String!, $start: String, $stop: String!) {
-                add(userId: $userId, name: $name, status: $status, start: $start, stop: $stop) {
+            mutation addTask($name: String!, $status: String!, $start: String, $stop: String!) {
+                add(name: $name, status: $status, start: $start, stop: $stop) {
                     _id    
                 }  
             }
@@ -123,7 +124,6 @@ export default {
             body: JSON.stringify({
                 query,
                 variables: { 
-                    userId: "602afbd61c7e5e4758898329",
                     name: taskName,
                     status: taskStatus,
                     start: (new Date(startDate) < Date.now() ? Date.now() : startDate).toString(),
@@ -138,8 +138,8 @@ export default {
 
     async UpdateTask(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
         const query = `
-            mutation updateTask($userId: String!, $taskId: String!, $name: String!, $status: String!, $start: String!, $stop: String!, $savedFiles: [String]) {
-                update(userId: $userId, taskId: $taskId, name: $name, status: $status, start: $start, stop: $stop, savedFiles: $savedFiles) {
+            mutation updateTask($taskId: String!, $name: String!, $status: String!, $start: String!, $stop: String!, $savedFiles: [String]) {
+                update(taskId: $taskId, name: $name, status: $status, start: $start, stop: $stop, savedFiles: $savedFiles) {
                     _id    
                 }
             }
@@ -153,7 +153,6 @@ export default {
             body: JSON.stringify({
                 query, 
                 variables: {
-                    userId: "602afbd61c7e5e4758898329",
                     taskId: taskId,
                     name: taskName,
                     status: taskStatus,
@@ -170,8 +169,8 @@ export default {
 
     async DeleteTask(taskId) {
         const query = `
-            mutation deleteTask($userId: String!, $taskId: String!) {
-                delete(userId: $userId, taskId: $taskId) {
+            mutation deleteTask($taskId: String!) {
+                delete(taskId: $taskId) {
                     _id
                 }
             }
@@ -184,7 +183,7 @@ export default {
             },
             body: JSON.stringify({
                 query,
-                variables: { userId: "602afbd61c7e5e4758898329", taskId: taskId },
+                variables: { taskId: taskId },
             })
         });
 

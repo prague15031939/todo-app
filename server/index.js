@@ -1,7 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const tasksRoutes = require("./routes/taskRoutes");
-const usersRoutes = require("./routes/userRoutes");
 const cookies = require("cookie-parser");
 const graphqlConfig = require("./graphql/graphqlConfig");
 const path = require("path");
@@ -19,7 +17,8 @@ app.use(express.json());
 app.use(cookies());
 
 app.use('/graphql', graphqlConfig.Create());
+app.get("/tasks", (req, res) => {
+    res.sendFile("index.html", {root: path.join(global.appRoot, "../public/build")});
+});
 
-app.use("/", tasksRoutes);
-app.use("/", usersRoutes);
 app.listen(3000, () => console.log("Server is running"));

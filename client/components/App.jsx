@@ -31,9 +31,8 @@ class App extends Component {
 
    async refreshTasks() {
       const res = await TaskApi.GetTasks();
-      if (res.status && res.status === 401) {
+      if (res == null) {
          this.setState({ authorized: false, currentUser: null });
-         console.log(res.status, res.text);
       }
       else {
          this.setState({ tasks: res });
@@ -67,7 +66,7 @@ class App extends Component {
 
    async handleFilterByStatus(status) {
       const res = await TaskApi.GetTasksByFilter(status);
-      if (res.status && res.status === 401) {
+      if (res == null) {
          this.setState({ authorized: false, currentUser: null });
       }
       else {
@@ -86,18 +85,18 @@ class App extends Component {
 
    async handleLoginUser(user) {
       const res = await UserApi.LoginUser(user.email, user.password);
-      if (res.ok) {
+      if (res != null) {
          this.refreshTasks();
       }
-      console.log(res.status, res.text);
+      //console.log(res.status, res.text);
    }
 
    async handleRegisterUser(user) {
       const res = await UserApi.RegisterUser(user.username, user.email, user.password);
-      if (res.ok) {
+      if (res != null) {
          this.refreshTasks();
       }
-      console.log(res.status, res.text);
+      //console.log(res.status, res.text);
    }
 
    async handleLogOut() {

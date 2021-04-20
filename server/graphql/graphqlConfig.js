@@ -1,16 +1,20 @@
 const graphqlExpress = require("express-graphql").graphqlHTTP;
 const { buildSchema } = require("graphql");
-const actions = require("./taskActions");
+const taskActions = require("./taskActions");
+const userActions = require("./userActions");
 
 var schema = buildSchema(`
     type Query {
-        all(userId: String!): [Task]
-        filter(userId: String!, status: String!): [Task]
+        all: [Task]
+        filter(status: String!): [Task]
+        current: User
     },
     type Mutation {
-        add(userId: String!, name: String!, status: String!, start: String, stop: String!): Task
-        update(userId: String!, taskId: String!, name: String!, status: String!, start: String!, stop: String!, savedFiles: [String]): Task
-        delete(userId: String!, taskId: String!): Task
+        add(name: String!, status: String!, start: String, stop: String!): Task
+        update(taskId: String!, name: String!, status: String!, start: String!, stop: String!, savedFiles: [String]): Task
+        delete(taskId: String!): Task
+        login(email: String!, password: String!): String
+        register(email: String!, username: String!, password: String!): String
     },
     type Task {
         _id: String
@@ -22,18 +26,21 @@ var schema = buildSchema(`
         files: [String]
     },
     type User {
-        _id: String
+        id: String
         email: String
         username: String
     }
 `);
 
 var rootResolver = {
-    all: actions.getAllTasks,
-    filter: actions.getFilteredTasks,
-    add: actions.addTask,
-    update: actions.updateTask,
-    delete: actions.deleteTask
+    all: taskActions.getAllTasks,
+    filter: taskActions.getFilteredTasks,
+    add: taskActions.addTask,
+    update: taskActions.updateTask,
+    delete: taskActions.deleteTask,  
+    login: userActions.loginUser,
+    register: userActions.registerUser,
+    current: userActions.getCurrentUser
 };
 
 exports.Create = function () {

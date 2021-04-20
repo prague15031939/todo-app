@@ -1,51 +1,72 @@
 const mongoose = require("mongoose");
 const taskController = require("../controllers/taskController");
 const extracter = taskController.extractFilenames;
+const auth = require("../middlewares/authMiddleware");
 
-exports.getAllTasks = async function (request) {
-    const saved = await taskController.getAll(mongoose.Types.ObjectId(request.userId));
+exports.getAllTasks = async function (args, request) {
+    const valid = auth.verifyToken(request);
+    if (valid.error) 
+        return null;
+
+    const saved = await taskController.getAll(valid.id);
     if (saved) {
         return extracter(saved);
     }
 }
 
-exports.getFilteredTasks = async function (request) {
-    const saved = await taskController.getByStatus(request.status, mongoose.Types.ObjectId(request.userId));
+exports.getFilteredTasks = async function (args, request) {
+    const valid = auth.verifyToken(request);
+    if (valid.error) 
+        return null;
+
+    const saved = await taskController.getByStatus(args.status, valid.id);
     if (saved) {
         return extracter(saved);
     }
 }
 
-exports.addTask = async function (request) {
+exports.addTask = async function (args, request) {
+    const valid = auth.verifyToken(request);
+    if (valid.error) 
+        return null;
+
     const saved = await taskController.add({ 
-        name: request.name,
-        status: request.status,
-        start: request.start,
-        stop: request.stop,
-    }, mongoose.Types.ObjectId(request.userId));
+        name: args.name,
+        status: args.status,
+        start: args.start,
+        stop: args.stop,
+    }, valid.id);
     if (saved) {
         return extracter(saved);
     }
 }
 
-exports.updateTask = async function(request) {
-    const saved = await taskController.update(mongoose.Types.ObjectId(request.taskId), 
+exports.updateTask = async function(args, request) {
+    const valid = auth.verifyToken(request);
+    if (valid.error) 
+        return null;
+
+    const saved = await taskController.update(mongoose.Types.ObjectId(args.taskId), 
         {
-            name: request.name,
-            status: request.status,
-            start: request.start,
-            stop: request.stop,
-            savedFiles: request.savedFiles
+            name: args.name,
+            status: args.status,
+            start: args.start,
+            stop: args.stop,
+            savedFiles: args.savedFiles
         },
-        request.userId
+        valid.id
     );  
     if (saved) {
         return extracter(saved);
     }
 }
 
-exports.deleteTask = async function (request) {
-    const saved = await taskController.deleteById(mongoose.Types.ObjectId(request.taskId), request.userId);
+exports.deleteTask = async function (args, request) {
+    const valid = auth.verifyToken(request);
+    if (valid.error) 
+        return null;
+
+    const saved = await taskController.deleteById(mongoose.Types.ObjectId(args.taskId), valid.id);
     if (saved) {
         return extracter(saved);
     }

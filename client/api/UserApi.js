@@ -1,60 +1,91 @@
+import { Cookies } from "react-cookie";
+
 const apiPrefix = "http://localhost:3000";
+
+function setAuthCookie(token) {
+    if (token) {
+        const cookies = new Cookies();
+        cookies.set('auth-token', token, {maxAge: 180});
+    }
+}
 
 export default {
 
     async LoginUser(email, password) {
-        const response = await fetch(`${apiPrefix}/api/user/login`, {
-            method: "POST",
+        const query = `
+            mutation loginUser($email: String!, $password: String!) {
+                login(email: $email, password: $password)
+            }
+        `;
+        const response = await fetch(`${apiPrefix}/graphql`, {
+            method: 'POST',
             headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
             body: JSON.stringify({
-                email: email,
-                password: password,
+                query,
+                variables: {     
+                    email: email,
+                    password: password
+                },
             })
         });
-        
-        return { 
-            ok: response.ok,
-            status: response.status,
-            text: await response.text(),
-        };
+
+        const decoded = await response.json();
+        setAuthCookie(decoded.data.login);
+        return decoded.data.login;
     },
 
     async RegisterUser(username, email, password) {
-        const response = await fetch(`${apiPrefix}/api/user/register`, {
-            method: "POST",
+        const query = `
+            mutation registerUser($email: String!, $username: String!, $password: String!) {
+                register(email: $email, username: $username, password: $password)
+            }
+        `;
+        const response = await fetch(`${apiPrefix}/graphql`, {
+            method: 'POST',
             headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
             body: JSON.stringify({
-                username: username,
-                email: email,
-                password: password,
+                query,
+                variables: {     
+                    email: email,
+                    username: username,
+                    password: password
+                },
             })
         });
-        
-        return { 
-            ok: response.ok,
-            status: response.status,
-            text: await response.text(),
-        };
+    
+        const decoded = await response.json();
+        setAuthCookie(decoded.data.register);
+        return decoded.data.register;
     },
 
     async GetCurrent() {
-        const response = await fetch(`${apiPrefix}/api/user/current`, {
-            method: "GET",
+        const query = `
+            query getCurrentUser {
+                current {
+                    id
+                    email
+                    username
+                }
+            }
+        `;
+        const response = await fetch(`${apiPrefix}/graphql`, {
+            method: 'POST',
             headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
             },
+            body: JSON.stringify({
+                query,
+            })
         });
-        
-        if (response.ok === true) {
-            return await response.json();
-        }
-    },
 
+        const decoded = await response.json();
+        return decoded.data.current;
+    }
 }

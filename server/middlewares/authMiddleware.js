@@ -1,15 +1,16 @@
 const jwt = require("jsonwebtoken");
+const cookie = require("cookie");
 
-module.exports = function (req, res, next) {
-    const token = req.cookies["auth-token"];
-    if (!token)
-        return res.status(401).send("Unauthorized");
+exports.verifyToken = function (request) {
+    const token = cookie.parse(request.headers.cookie)["auth-token"];
+    if (!token) {
+        return {error: "unauthorized", status: 401};
+    }
 
     try {
         const verified = jwt.verify(token, global.signature);
-        req.currentUser = verified.data;
-        next();
+        return verified.data;
     } catch(err) {
-        res.status(401).send("Invalid token");
-    }    
+        return {error: "invalid token", status: 401};
+    } 
 }
