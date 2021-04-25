@@ -1,17 +1,5 @@
 const apiPrefix = "http://localhost:3000";
 
-async function dispatchResponse(response) {
-    if (response.ok === true) {
-        return await response.json();
-    } 
-    else {
-        return {
-            status: response.status,
-            text: await response.text(),
-        };
-    }
-}
-
 export default {
 
     async GetTasks() {
@@ -80,30 +68,35 @@ export default {
         return decoded.data.filter;
     },
 
-    async UploadTaskFiles(response, selectedFiles) {
-        if (response.ok === true) {
-            const task = await response.json();
+    async UploadTaskFiles(selectedFiles, taskId) {
+        if (selectedFiles.length) {
+            const query = `
+                mutation uploadTaskFiles($files: [Upload!]!, $taskId: String!) {
+                    uploadFiles(files: $files, taskId: $taskId)  
+                }
+            `;
+            let formData = new FormData();
+            formData.append("operations", 
+                JSON.stringify({
+                    query,
+                    variables: { 
+                        files: selectedFiles,
+                        taskId: taskId
+                    },
+                })
+            );
 
-            if (selectedFiles.length) {
-                const formData = new FormData();
-                for (let i = 0; i < selectedFiles.length; i++)
-                    formData.append("filedata", selectedFiles[i]);
-                const responseUpload = await fetch(`${apiPrefix}/api/tasks/upload/${task._id}`, {
-                    method: "POST",
-                    body: formData,
-                });
-    
-                return dispatchResponse(responseUpload);
-            }
-            else {
-                return task;
-            }
-        }
-        else {
-            return {
-                status: response.status,
-                msg: await response.text(),
-            };
+            let mapObject = {};
+            for (let i = 0; i < selectedFiles.length; i++)
+                mapObject[i.toString()] = [`variables.files.${i}`];
+            formData.append("map", JSON.stringify(mapObject));
+            for (let i = 0; i < selectedFiles.length; i++)
+                formData.append(i.toString(), selectedFiles[i], selectedFiles[i].name);
+
+            await fetch(`${apiPrefix}/graphql`, {
+                method: "POST",
+                body: formData,
+            });    
         }
     },
 
@@ -132,8 +125,10 @@ export default {
             })
         });
     
-        console.log(await response.json());
-        //return await this.UploadTaskFiles(response, selectedFiles);
+        const decoded = await response.json();
+        if (decoded.data.add != null) {
+            await this.UploadTaskFiles(selectedFiles, decoded.data.add._id);
+        }
     },
 
     async UpdateTask(taskId, taskName, taskStatus, startDate, stopDate, selectedFiles, editedFiles) {
@@ -163,8 +158,10 @@ export default {
             })
         });
 
-        console.log(await response.json());
-        //return await this.UploadTaskFiles(response, selectedFiles);
+        const decoded = await response.json();
+        if (decoded.data.update != null) {
+            await this.UploadTaskFiles(selectedFiles, decoded.data.update._id);
+        }
     },
 
     async DeleteTask(taskId) {
@@ -186,7 +183,5 @@ export default {
                 variables: { taskId: taskId },
             })
         });
-
-        console.log(await response.json());
     }
 }

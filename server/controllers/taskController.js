@@ -1,7 +1,6 @@
 const Task = require("../models/Task");
 const fs = require("fs");
 const path = require("path");
-const userController = require("../controllers/userController");
 
 exports.extractFilenames = function(tasks) {
     if (tasks.length) {
@@ -51,7 +50,7 @@ exports.update = async function(taskId, taskData, userId) {
 }
 
 exports.addFiles = async function(taskId, uploadedFiles) {
-    return await Task.findOneAndUpdate({_id: taskId}, {$push: {files: {$each: Array.from(uploadedFiles, item => item.path)}}}, {new: true});
+    return await Task.findOneAndUpdate({_id: taskId}, {$push: {files: {$each: Array.from(uploadedFiles, item => item.filePath)}}}, {new: true});
 }
 
 exports.getAll = async function(userId) {
@@ -75,4 +74,22 @@ exports.deleteById = async function(id, userId) {
     for (const fileName of task.files)
         fs.unlinkSync(fileName);
     return await Task.findByIdAndRemove({_id: id});
+}
+
+exports.storeFile = function(stream, filename) {
+    const uploadDir = path.join(global.appRoot, "../uploads");
+    const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    filename = uniquePrefix + "." + filename.split('.').pop();
+    const filePath = path.join(uploadDir, filename);
+
+    return new Promise((resolve, reject) =>
+        stream.on("error", error => {
+            if (stream.truncated)
+                fs.unlinkSync(filePath);
+            reject(error);
+        })
+        .pipe(fs.createWriteStream(filePath))
+        .on("error", error => reject(error))
+        .on("finish", () => resolve({ filePath }))
+    );
 }

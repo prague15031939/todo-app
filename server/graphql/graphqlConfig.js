@@ -1,9 +1,11 @@
 const graphqlExpress = require("express-graphql").graphqlHTTP;
 const { buildSchema } = require("graphql");
+const GraphQLUpload = require('graphql-upload/public/GraphQLUpload');
 const taskActions = require("./taskActions");
 const userActions = require("./userActions");
 
 var schema = buildSchema(`
+    scalar Upload
     type Query {
         all: [Task]
         filter(status: String!): [Task]
@@ -15,6 +17,7 @@ var schema = buildSchema(`
         delete(taskId: String!): Task
         login(email: String!, password: String!): String
         register(email: String!, username: String!, password: String!): String
+        uploadFiles(files: [Upload!]!, taskId: String!): String
     },
     type Task {
         _id: String
@@ -40,7 +43,9 @@ var rootResolver = {
     delete: taskActions.deleteTask,  
     login: userActions.loginUser,
     register: userActions.registerUser,
-    current: userActions.getCurrentUser
+    current: userActions.getCurrentUser,
+    Upload: GraphQLUpload,
+    uploadFiles: taskActions.uploadFiles
 };
 
 exports.Create = function () {

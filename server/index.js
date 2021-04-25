@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookies = require("cookie-parser");
 const graphqlConfig = require("./graphql/graphqlConfig");
+const graphqlUploadExpress = require('graphql-upload/public/graphqlUploadExpress');
+const tasksRoutes = require("./routes/taskRoutes");
 const path = require("path");
 const app = express();
 
@@ -16,9 +18,11 @@ mongoose.connect("mongodb://127.0.0.1:27017/todo-tasks", {useUnifiedTopology: tr
 app.use(express.json());
 app.use(cookies());
 
-app.use('/graphql', graphqlConfig.Create());
-app.get("/tasks", (req, res) => {
-    res.sendFile("index.html", {root: path.join(global.appRoot, "../public/build")});
-});
+app.use("/graphql",   
+    graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 20 }),
+    graphqlConfig.Create()
+);
+
+app.use("/", tasksRoutes);
 
 app.listen(3000, () => console.log("Server is running"));

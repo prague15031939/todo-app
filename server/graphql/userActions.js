@@ -24,7 +24,7 @@ exports.registerUser = async function(args, request) {
 exports.getCurrentUser = async function(args, request) {
     const valid = auth.verifyToken(request);
     if (valid.error) {
-        return null; // optional handling
+        return null;
     }
     else {
         return valid;
